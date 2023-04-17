@@ -66,7 +66,7 @@ Shader"URPwater"{
             sampler2D _CameraOpaqueTexture;
             sampler2D _CameraDepthTexture;
             float4 _CameraDepthTexture_TexelSize;
-            #include "WaterPreCompute.hlsl"
+            #include "Functions/WaterPreCompute.hlsl"
             CBUFFER_START(UnityPerMaterial)
             half4 _MainTex_ST;
             

@@ -78,8 +78,8 @@ Shader "Game/Lit/Transparency/Water"
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
-            #include "PBR_Func.hlsl"
-            #include "DepthPreCompute.hlsl"
+            #include "Functions/PBR_Func.hlsl"
+            #include "Functions/DepthPreCompute.hlsl"
 
             #define UNITY_PROJ_COORD(a) a.xyzw/a.w
             #define UNITY_SAMPLE_DEPTH(a) a.r

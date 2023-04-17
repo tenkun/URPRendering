@@ -24,7 +24,7 @@ Shader "Game/Lit/Transparency/Lit"
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
-            #include "PBR_Func.hlsl"
+            #include "Assets/Shaders/Functions/PBR_Func.hlsl"
 
             struct a2v
             {

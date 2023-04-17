@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e65da68516f391244b3536c92bb35898, type: 3}
+  m_Name: Render Resource
+  m_EditorClassIdentifier: 
+  m_PostProcess:
+  - {fileID: 4800000, guid: 7a8f3bf2b5cdb0247a55801ed68045d1, type: 3}
+  - {fileID: 4800000, guid: e22ba457b60a2004dbc53ca75645b701, type: 3}
+  m_IncludeShaders: []
+  m_ComputeShader:
+  - {fileID: 7200000, guid: 40c666da055e5b94990123a76f991561, type: 3}
+  - {fileID: 7200000, guid: 75c32c570e8470f4e84e739a6fa5d647, type: 3}
