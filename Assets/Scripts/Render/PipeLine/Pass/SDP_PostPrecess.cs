@@ -17,69 +17,65 @@ namespace Rendering.Pipline
         private string m_ProfilerTag;
         private RenderTargetIdentifier source;
         private RenderTargetIdentifier destination;
-        int temporaryRTId = Shader.PropertyToID("_TempRT");
+        private RenderTargetIdentifier temp1;
+        private RenderTargetIdentifier temp2;
+        int temporaryRTId1 = Shader.PropertyToID("_TempRT1");
+        int temporaryRTId2 = Shader.PropertyToID("_TempRT2");
         
         ColorAdjustmentVolume colorAdjustmentVolume;
 
         private SRF_PostProcess.Settings m_settings;
-        
-        int sourceId;
-        int destinationId;
-        bool isSourceAndDestinationSameTarget;
 
-        public SDP_PostProcess(string name, SRF_PostProcess.Settings settings)
+        private List<VolumeBase> m_Volumes;
+
+        public SDP_PostProcess(string profilterTag, SRF_PostProcess.Settings settings, List<VolumeBase> volumes)
         {
-            m_ProfilerTag = name;
+            m_ProfilerTag = profilterTag;
             m_settings = settings;
+            m_Volumes = volumes;
         }
 
+        public bool SetupVolume()
+        {
+            int activeCount=0;
+            foreach (var volume in m_Volumes)
+            {
+                volume.Setup();
+                if (volume.IsActive())
+                {
+                    activeCount++;
+                }
+            }
+
+            return activeCount > 0; 
+        }
+        
         public override void Configure(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor)
         {
-
+            RenderTextureDescriptor blitTargetDescriptor = new RenderTextureDescriptor(cameraTextureDescriptor.width, cameraTextureDescriptor.height,cameraTextureDescriptor.colorFormat,cameraTextureDescriptor.depthBufferBits);
+            blitTargetDescriptor.enableRandomWrite = true;
+            
+            cmd.GetTemporaryRT(temporaryRTId1, blitTargetDescriptor, filterMode);
+            temp1 = new RenderTargetIdentifier(temporaryRTId1);
+            cmd.GetTemporaryRT(temporaryRTId2,blitTargetDescriptor,filterMode);
+            temp2 = new RenderTargetIdentifier(temporaryRTId2);
         }
 
         public override void OnCameraSetup(CommandBuffer cmd,ref RenderingData renderingData)
         {
             if(!m_settings.m_ColorAdjustment)
                 return;
-            RenderTextureDescriptor blitTargetDescriptor = renderingData.cameraData.cameraTargetDescriptor;
-            blitTargetDescriptor = new RenderTextureDescriptor(blitTargetDescriptor.width, blitTargetDescriptor.height,blitTargetDescriptor.colorFormat,blitTargetDescriptor.depthBufferBits);
-            blitTargetDescriptor.enableRandomWrite = true;
-            blitTargetDescriptor.depthStencilFormat = GraphicsFormat.None;
-
-            isSourceAndDestinationSameTarget = m_settings.sourceType == m_settings.destinationType &&
-                                               (m_settings.sourceType == BufferType.CameraColor);
-
+            
             var renderer = renderingData.cameraData.renderer;
-
-            if (m_settings.sourceType == BufferType.CameraColor)
+            source =  renderer.cameraColorTargetHandle;
+            if (this.renderPassEvent == RenderPassEvent.AfterRendering)
             {
-                sourceId = -1;
-                source = renderer.cameraColorTargetHandle;
+                var destinationId = Shader.PropertyToID("_AfterPostProcessTexture");
+                destination = new RenderTargetIdentifier(destinationId);
             }
             else
             {
-                sourceId = KGlobalParametersID.kSourceTex;
-                cmd.GetTemporaryRT(sourceId, blitTargetDescriptor, filterMode);
-                source = new RenderTargetIdentifier(sourceId);
-            }
-
-            if (isSourceAndDestinationSameTarget)
-            {
-                destinationId = temporaryRTId;
-                cmd.GetTemporaryRT(destinationId, blitTargetDescriptor, filterMode);
-                destination = new RenderTargetIdentifier(destinationId);
-            }
-            else if (m_settings.destinationType == BufferType.CameraColor)
-            {
-                destinationId = -1;
-                destination = renderer.cameraColorTargetHandle;
-            }
-            else
-            {
-                destinationId = KGlobalParametersID.kDestinationTex;
-                cmd.GetTemporaryRT(destinationId, blitTargetDescriptor, filterMode);
-                destination = new RenderTargetIdentifier(destinationId);
+                destination = source;
             }
 
             var postStack = VolumeManager.instance.stack;
@@ -88,39 +84,43 @@ namespace Rendering.Pipline
 
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
         {
-            if(!m_settings.m_ColorAdjustment)
-                return;
-            CommandBuffer cmd = CommandBufferPool.Get("Color Adjustment");
-            RenderTextureDescriptor desc = renderingData.cameraData.cameraTargetDescriptor;
-            int kernelId = colorAdjustmentCS.FindKernel("ColorAdjustment");
-            cmd.SetComputeFloatParam(colorAdjustmentCS,"Brightness",colorAdjustmentVolume.m_Brightness.value);
-            cmd.SetComputeFloatParam(colorAdjustmentCS,"Saturation",colorAdjustmentVolume.m_Saturation.value);
-            cmd.SetComputeFloatParam(colorAdjustmentCS,"Contrast",colorAdjustmentVolume.m_Contrast.value);
-            cmd.SetComputeTextureParam(colorAdjustmentCS,kernelId,"Result",destination);
-            cmd.SetComputeTextureParam(colorAdjustmentCS,kernelId,"Source",source);
-            cmd.DispatchCompute(colorAdjustmentCS,kernelId,(int)desc.width/8,(int)desc.height/8,1);
-            int tempColorTargetID=Shader.PropertyToID("_TempColorTarget");
-            cmd.GetTemporaryRT(tempColorTargetID,desc);
-            RenderTargetIdentifier tempColorTarget = new RenderTargetIdentifier(tempColorTargetID);
-            cmd.Blit(renderingData.cameraData.renderer.cameraColorTargetHandle,tempColorTarget);
+            CommandBuffer cmd = CommandBufferPool.Get(m_ProfilerTag);
+            cmd.Clear();
+
+
             // colorAdjustmentMat.SetFloat("_Contrast",colorAdjustmentVolume.m_Contrast.value);
             // colorAdjustmentMat.SetFloat("_Brightness",colorAdjustmentVolume.m_Brightness.value);
             // colorAdjustmentMat.SetFloat("_Saturate",colorAdjustmentVolume.m_Saturation.value);
             // cmd.Blit( source, destination, colorAdjustmentMat,-1);
-            
-            cmd.Blit(destination, source);
+            if (m_Volumes.Count <= 1)
+            {
+                if (!m_Volumes[0].IsActive())
+                {
+                    CommandBufferPool.Release(cmd);
+                    return;
+                }
+            }
+            cmd.Blit(source,temp1);
+            foreach (var volume in m_Volumes)
+            {
+                if(!volume.IsActive())
+                    continue;
+
+                using (new ProfilingScope(cmd,profilingSampler))
+                {
+                    volume.Render(cmd,ref renderingData,temp1,temp2);
+                }
+                CoreUtils.Swap(ref temp1,ref temp2);
+            }
+            cmd.Blit(temp1, destination);
             context.ExecuteCommandBuffer(cmd);
             CommandBufferPool.Release(cmd);
         }
         
         public override void FrameCleanup(CommandBuffer cmd)
         {
-            if (destinationId != -1)
-                cmd.ReleaseTemporaryRT(destinationId);
-
-            if (source == destination && sourceId != -1)
-                cmd.ReleaseTemporaryRT(sourceId);
-            //CoreUtils.Destroy(colorAdjustmentMat);
+            cmd.ReleaseTemporaryRT(temporaryRTId1);
+            cmd.ReleaseTemporaryRT(temporaryRTId2);
         }
         
     }

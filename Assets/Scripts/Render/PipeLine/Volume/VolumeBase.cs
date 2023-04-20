@@ -23,13 +23,13 @@ namespace Rendering.Pipline
     public abstract class VolumeBase : VolumeComponent,IPostProcessComponent,IDisposable
     {
         public virtual int OrderInPass => 0;
-        public virtual PostProcessInjectionPoint m_InjectionPoint => PostProcessInjectionPoint.AfterPostProcess;
-        public virtual PostProcessShaderType m_ShaderType => PostProcessShaderType.Material;
+        public virtual PostProcessInjectionPoint InjectionPoint => PostProcessInjectionPoint.AfterPostProcess;
+        public virtual PostProcessShaderType ShaderType => PostProcessShaderType.Material;
         
         public abstract void Setup();
 
         public abstract void Render(CommandBuffer cmd, ref RenderingData renderingData,
-            RenderTargetIdentifier renderTargetIdentifier);
+            RenderTargetIdentifier source,RenderTargetIdentifier destination);
 
         #region  IPostProcessComponent
 
