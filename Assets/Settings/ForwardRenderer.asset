@@ -16,9 +16,22 @@ MonoBehaviour:
   m_Resources: {fileID: 11400000, guid: 6ee1d8494ce303c4f9cf1f3e1b87a95e, type: 2}
   settings:
     m_ColorAdjustment: 1
-    m_RenderPassEvent: 500
     sourceType: 0
     destinationType: 0
+--- !u!114 &-6560226673198848487
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b8fce09cfad1744be987247c67f01c, type: 3}
+  m_Name: Extended
+  m_EditorClassIdentifier: 
+  m_Active: 1
+  m_Resources: {fileID: 11400000, guid: 6ee1d8494ce303c4f9cf1f3e1b87a95e, type: 2}
 --- !u!114 &-3020284659400647739
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -59,7 +72,8 @@ MonoBehaviour:
   m_RendererFeatures:
   - {fileID: -3020284659400647739}
   - {fileID: -8100518262078471676}
-  m_RendererFeatureMap: c5dbdcbb1acb15d604823f1c8f2d958f
+  - {fileID: -6560226673198848487}
+  m_RendererFeatureMap: c5dbdcbb1acb15d604823f1c8f2d958f19a6f0299964f5a4
   m_UseNativeRenderPass: 0
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
   xrSystemData: {fileID: 11400000, guid: 60e1133243b97e347b653163a8c01b64, type: 2}

@@ -21,9 +21,9 @@ public static  class KRenderTexture
 public static class KCameraParametersID
 {
     public static readonly int kFrustumCornersRayBL = Shader.PropertyToID("_FrustumCornersRayBL");
-    public static readonly int kFrustumCornerRayBR = Shader.PropertyToID("_FrustumCornerRayBR");
+    public static readonly int kFrustumCornersRayBR = Shader.PropertyToID("_FrustumCornersRayBR");
     public static readonly int kFrustumCornersRayTL = Shader.PropertyToID("_FrustumCornersRayTL");
-    public static readonly int kFrustumCornerRayTR = Shader.PropertyToID("_FrustumCornerRayTR");
+    public static readonly int kFrustumCornersRayTR = Shader.PropertyToID("_FrustumCornersRayTR");
 
     public static readonly int kOrthoDirection = Shader.PropertyToID("_OrthoDirection");
     public static readonly int kOrthoBL = Shader.PropertyToID("_OrthoBL");
@@ -33,7 +33,7 @@ public static class KCameraParametersID
 
     public static readonly int kMatrixV = Shader.PropertyToID("_Matrix_V");
     public static readonly int kMatrix_VP = Shader.PropertyToID("_Matrix_VP");
-    public static readonly int k_Matrix_I_VP = Shader.PropertyToID("_Matrix_I_VP");
+    public static readonly int kMatrix_I_VP = Shader.PropertyToID("_Matrix_I_VP");
 }
 
 public static class KGlobalParametersID

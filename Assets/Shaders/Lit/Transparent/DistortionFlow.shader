@@ -78,8 +78,9 @@ Shader "Game/Lit/Transparency/Water"
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
-            #include "Functions/PBR_Func.hlsl"
-            #include "Functions/DepthPreCompute.hlsl"
+            #include "Assets/Shaders/Functions/ValueMapping.hlsl"
+            #include "Assets/Shaders/Functions/PBR_Func.hlsl"
+            #include "Assets/Shaders/Functions/DepthPreCompute.hlsl"
 
             #define UNITY_PROJ_COORD(a) a.xyzw/a.w
             #define UNITY_SAMPLE_DEPTH(a) a.r
@@ -373,7 +374,7 @@ Shader "Game/Lit/Transparency/Water"
 
             	#if _CAUSTICS
             	float depth=SAMPLE_TEXTURE2D_X(_CameraDepthTexture,sampler_CameraDepthTexture,screenPos.xy).r;
-            	float3 worldPos=ReconstructWorldPosition(depth,screenPos.xy);
+            	float3 worldPos=TransformNDCToWorld(screenPos.xy,depth);
             	float3 castics=GetCaustics(worldPos,normal.xz);
             	float ydiff=i.positionWS.y-worldPos.y;
             	finalCol+=castics*saturate(1-ydiff);

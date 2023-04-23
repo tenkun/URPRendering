@@ -39,7 +39,11 @@ namespace Rendering.Pipline
         #endregion
 
         #region  IDisposable
-        
+
+        ~VolumeBase()
+        {
+            Dispose(false);
+        }
         public void Dispose()
         {
             Dispose(true);

@@ -1,26 +1,70 @@
-float3 ReconstructWorldPosition(float depthNDC, float2 screenPos)
+float3 _FrustumCornersRayBL;
+float3 _FrustumCornersRayBR;
+float3 _FrustumCornersRayTL;
+float3 _FrustumCornersRayTR;
+
+float4x4 _Matrix_VP;
+float4x4 _Matrix_V;
+float4x4 _Matrix_I_VP;
+
+inline float RawToEyeDepthOrthographic(float _rawDepth,float4 _projectionParams)
 {
-    float4 positionNDC=float4(screenPos*2-1,depthNDC,1);
+    #if UNITY_REVERSED_Z
+    _rawDepth=1.0f-_rawDepth;
+    #endif
+    return lerp(_projectionParams.y,_projectionParams.z,_rawDepth);
+}
+
+inline float RawToEyeDepthPerspective(float _rawDepth,float4 _zBufferParams)
+{
+    return LinearEyeDepth(_rawDepth,_zBufferParams);
+}
+
+float RawToEyeDepth(float _rawDepth)
+{
+    [branch]
+    if(unity_OrthoParams.w)
+        return RawToEyeDepthOrthographic(_rawDepth,_ProjectionParams);
+    else
+        return RawToEyeDepthPerspective(_rawDepth,_ZBufferParams);
+}
+
+float3 TransformNDCToFrustumCornersRay(float2 uv)
+{
+    return bilinearLerp(_FrustumCornersRayTL, _FrustumCornersRayTR, _FrustumCornersRayBL, _FrustumCornersRayBR, uv);
+}
+
+float3 TransformNDCToWorld_Perspective(float2 uv,float _rawDepth)
+{
+    return GetCameraPositionWS() + LinearEyeDepth(_rawDepth,_ZBufferParams) *  TransformNDCToFrustumCornersRay(uv);
+}
+
+float3 ReconstructWorldPosition(float2 screenUV,float rawDepth)
+{
+    #if UNITY_REVERSED_Z
+    real depth = rawDepth;
+    #else
+    // 调整 z 以匹配 OpenGL 的 NDC
+    real depth = lerp(UNITY_NEAR_CLIP_VALUE, 1, rawDepth);
+    #endif
+
+    float4 positionNDC=float4(screenUV*2-1,depth,1);
+
     #if UNITY_UV_STARTS_AT_TOP
     positionNDC.y = -positionNDC.y;
     #endif
-    float4 positionWS=mul(UNITY_MATRIX_I_VP,positionNDC);
+
+    float4 positionWS=mul( _Matrix_I_VP,positionNDC);
     positionWS/=positionWS.w;
     return  positionWS.xyz;
 }
 
-float3 ReconstructWorldPosition(float depthNDC, float4 screenPos)
+float3 TransformNDCToWorld(float2 uv,float rawDepth)
 {
-    float4 ndcPos=screenPos*2-1;
-    #if UNITY_UV_STARTS_AT_TOP
-    ndcPos.y = -ndcPos.y;
-    #endif
-    float3 clipVec=float3(ndcPos.x,ndcPos.y,ndcPos.z)*_ProjectionParams.z;
-    float3 viewVec=mul(UNITY_MATRIX_I_VP,clipVec);
-    float depth=Linear01Depth(depthNDC,_ProjectionParams);
-    float3 viewPos=viewVec*depth;
-    float3 worldPos=TransformViewToWorld(float4(viewPos,1));
-    return  worldPos.xyz;
+    if(unity_OrthoParams.w)
+        return ReconstructWorldPosition(uv,rawDepth);
+    else
+        return TransformNDCToWorld_Perspective(uv,rawDepth);
 }
 
 float GetDepthDiffVS(float bgDepth,float surfaceDepth)

@@ -37,10 +37,11 @@ namespace Rendering.Pipline
         {
             if (!m_Resources)
                 return;
-
+            
             var stack = VolumeManager.instance.stack;
+            VolumeManager.instance.CheckStack(stack);
             _volumeBases = VolumeManager.instance.baseComponentTypeArray.Where(t =>
-                    t.IsSubclassOf(typeof(VolumeBase)) && stack.GetComponent(t) != null)
+                    t.IsSubclassOf(typeof(VolumeBase))&&stack.GetComponent(t)!=null)
                 .Select(t => stack.GetComponent(t) as VolumeBase).ToList();
 
             var afterOpaqueAndSkyVolume = _volumeBases
@@ -54,7 +55,7 @@ namespace Rendering.Pipline
                 .OrderBy(v => v.OrderInPass).ToList();
             beforePostProcess = new SDP_PostProcess(this.name,this.settings,beforePostProcessVolume);
             beforePostProcess.renderPassEvent = RenderPassEvent.BeforeRenderingPostProcessing;
-            
+
             var afterPostProcessVolume = _volumeBases
                 .Where(v => v.InjectionPoint == PostProcessInjectionPoint.AfterPostProcess)
                 .OrderBy(v => v.OrderInPass).ToList();

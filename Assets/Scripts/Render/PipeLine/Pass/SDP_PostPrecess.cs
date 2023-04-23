@@ -10,9 +10,6 @@ namespace Rendering.Pipline
 {
     public class SDP_PostProcess : ScriptableRenderPass
     {
-        private ComputeShader colorAdjustmentCS = RenderResources.FindComputeShader("ColorAdjustment");
-        private Material colorAdjustmentMat=new Material(RenderResources.FindPostProcess("Game/PostProcess/ColorAdjustment"));
-       
         public FilterMode filterMode { get; set; }
         private string m_ProfilerTag;
         private RenderTargetIdentifier source;
@@ -46,7 +43,6 @@ namespace Rendering.Pipline
                     activeCount++;
                 }
             }
-
             return activeCount > 0; 
         }
         
@@ -63,9 +59,6 @@ namespace Rendering.Pipline
 
         public override void OnCameraSetup(CommandBuffer cmd,ref RenderingData renderingData)
         {
-            if(!m_settings.m_ColorAdjustment)
-                return;
-            
             var renderer = renderingData.cameraData.renderer;
             source =  renderer.cameraColorTargetHandle;
             if (this.renderPassEvent == RenderPassEvent.AfterRendering)
@@ -87,11 +80,6 @@ namespace Rendering.Pipline
             CommandBuffer cmd = CommandBufferPool.Get(m_ProfilerTag);
             cmd.Clear();
 
-
-            // colorAdjustmentMat.SetFloat("_Contrast",colorAdjustmentVolume.m_Contrast.value);
-            // colorAdjustmentMat.SetFloat("_Brightness",colorAdjustmentVolume.m_Brightness.value);
-            // colorAdjustmentMat.SetFloat("_Saturate",colorAdjustmentVolume.m_Saturation.value);
-            // cmd.Blit( source, destination, colorAdjustmentMat,-1);
             if (m_Volumes.Count <= 1)
             {
                 if (!m_Volumes[0].IsActive())
@@ -121,6 +109,10 @@ namespace Rendering.Pipline
         {
             cmd.ReleaseTemporaryRT(temporaryRTId1);
             cmd.ReleaseTemporaryRT(temporaryRTId2);
+            // foreach (var item in m_Volumes)
+            // {
+            //     item.Dispose();
+            // }
         }
         
     }
