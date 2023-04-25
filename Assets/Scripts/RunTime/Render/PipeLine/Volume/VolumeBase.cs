@@ -25,17 +25,17 @@ namespace Rendering.Pipline
         public virtual int OrderInPass => 0;
         public virtual PostProcessInjectionPoint InjectionPoint => PostProcessInjectionPoint.AfterPostProcess;
         public virtual PostProcessShaderType ShaderType => PostProcessShaderType.Material;
-        
-        public abstract void Setup();
 
-        public abstract void Render(CommandBuffer cmd, ref RenderingData renderingData,
+        public abstract bool Render(CommandBuffer cmd, ref RenderingData renderingData,
             RenderTargetIdentifier source,RenderTargetIdentifier destination);
+
+        public abstract bool CheckValid(RenderingData renderingData);
 
         #region  IPostProcessComponent
 
         public abstract bool IsActive();
         public virtual bool IsTileCompatible() => false;
-        
+
         #endregion
 
         #region  IDisposable
@@ -44,6 +44,7 @@ namespace Rendering.Pipline
         {
             Dispose(false);
         }
+        
         public void Dispose()
         {
             Dispose(true);

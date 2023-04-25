@@ -95,14 +95,14 @@ Shader "Game/Lit/Transparency/Water"
 
             struct v2f
             {
-                float4 positionCS : SV_POSITION;
+                float4 positionHCS : SV_POSITION;
                 half3 normalWS:NORMAL;
                 float2 uv : TEXCOORD0;
                 float3 viewDirWS:TEXCOORD1;
                 half3 tangentWS:TEXCOORD2;
                 half3 biTangentWS:TEXCOORD3;
                 float3 positionWS:TEXCOORD4;
-            	float4 positionHCS:TEXCOORD5;
+            	float4 positionCS:TEXCOORD5;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
@@ -272,7 +272,15 @@ Shader "Game/Lit/Transparency/Water"
                 half3 biTangentWS=normalize(i.biTangentWS);
                 half3x3 tbn=half3x3(tangentWS,biTangentWS,normalWS);
                 half3 viewDirWS=normalize(i.viewDirWS);
-                float4 screenPos =TransformClipToScreen(i.positionHCS);
+                float4 screenPos =TransformClipToScreen(i.positionCS);
+
+            	//depth
+            	real rawDepth=SAMPLE_TEXTURE2D_X(_CameraDepthTexture,sampler_CameraDepthTexture,screenPos.xy).r;
+            	#if !UNITY_REVERSED_Z
+				// Adjust z to match NDC for OpenGL
+                rawDepth = lerp(UNITY_NEAR_CLIP_VALUE, 1, rawDepth);
+				#endif
+            	
 
             	//Flow
             	float3 flow=SAMPLE_TEXTURE2D(_FlowTex,sampler_FlowTex,i.uv).rgb;
@@ -373,8 +381,7 @@ Shader "Game/Lit/Transparency/Water"
             	#endif
 
             	#if _CAUSTICS
-            	float depth=SAMPLE_TEXTURE2D_X(_CameraDepthTexture,sampler_CameraDepthTexture,screenPos.xy).r;
-            	float3 worldPos=TransformNDCToWorld(screenPos.xy,depth);
+            	float3 worldPos=TransformNDCToWorld(screenPos.xy,rawDepth);
             	float3 castics=GetCaustics(worldPos,normal.xz);
             	float ydiff=i.positionWS.y-worldPos.y;
             	finalCol+=castics*saturate(1-ydiff);

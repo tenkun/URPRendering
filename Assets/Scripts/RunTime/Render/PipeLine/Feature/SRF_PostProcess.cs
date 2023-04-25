@@ -37,11 +37,16 @@ namespace Rendering.Pipline
         {
             if (!m_Resources)
                 return;
-            
+
+            // _volumeBases = settings.m_VolumeProfile.components.Where(v => v.GetType().IsSubclassOf(typeof(VolumeBase)))
+            //     .Select(v => v as VolumeBase).ToList();
+            //LayerMask all = 1;
+            //var volume = VolumeManager.instance.GetVolumes(all).ToList();
             var stack = VolumeManager.instance.stack;
             VolumeManager.instance.CheckStack(stack);
             _volumeBases = VolumeManager.instance.baseComponentTypeArray.Where(t =>
                     t.IsSubclassOf(typeof(VolumeBase))&&stack.GetComponent(t)!=null)
+                //.Where(t=>volume.Find(v=>v.profile.Has(t))!=null)
                 .Select(t => stack.GetComponent(t) as VolumeBase).ToList();
 
             var afterOpaqueAndSkyVolume = _volumeBases
@@ -68,14 +73,15 @@ namespace Rendering.Pipline
             if (!m_Resources)
                 return;
             
-            if(afterOpaqueAndSky.SetupVolume())
+            if(afterOpaqueAndSky.SetupVolume(renderingData))
                 renderer.EnqueuePass(afterOpaqueAndSky);
             
-            if(beforePostProcess.SetupVolume())
+            if(beforePostProcess.SetupVolume(renderingData))
                 renderer.EnqueuePass(beforePostProcess);
             
-            if(afterPostProcess.SetupVolume())
+            if(afterPostProcess.SetupVolume(renderingData))
                 renderer.EnqueuePass(afterPostProcess);
+            
         }
 
         protected override void Dispose(bool disposing)

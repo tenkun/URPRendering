@@ -41,14 +41,7 @@ float3 TransformNDCToWorld_Perspective(float2 uv,float _rawDepth)
 
 float3 ReconstructWorldPosition(float2 screenUV,float rawDepth)
 {
-    #if UNITY_REVERSED_Z
-    real depth = rawDepth;
-    #else
-    // 调整 z 以匹配 OpenGL 的 NDC
-    real depth = lerp(UNITY_NEAR_CLIP_VALUE, 1, rawDepth);
-    #endif
-
-    float4 positionNDC=float4(screenUV*2-1,depth,1);
+    float4 positionNDC=float4(screenUV*2-1,rawDepth,1);
 
     #if UNITY_UV_STARTS_AT_TOP
     positionNDC.y = -positionNDC.y;

@@ -32,13 +32,12 @@ namespace Rendering.Pipline
             m_Volumes = volumes;
         }
 
-        public bool SetupVolume()
+        public bool SetupVolume(RenderingData renderingData)
         {
             int activeCount=0;
             foreach (var volume in m_Volumes)
-            {
-                volume.Setup();
-                if (volume.IsActive())
+            { ;
+                if (volume.CheckValid(renderingData))
                 {
                     activeCount++;
                 }
@@ -71,8 +70,6 @@ namespace Rendering.Pipline
                 destination = source;
             }
 
-            var postStack = VolumeManager.instance.stack;
-            colorAdjustmentVolume = postStack.GetComponent<ColorAdjustmentVolume>();
         }
 
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
@@ -93,7 +90,6 @@ namespace Rendering.Pipline
             {
                 if(!volume.IsActive())
                     continue;
-
                 using (new ProfilingScope(cmd,profilingSampler))
                 {
                     volume.Render(cmd,ref renderingData,temp1,temp2);
