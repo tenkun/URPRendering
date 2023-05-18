@@ -19,7 +19,7 @@ namespace Rendering.Pipline
         Material,
         Compute
     }
-    
+
     public abstract class VolumeBase : VolumeComponent,IPostProcessComponent,IDisposable
     {
         public virtual int OrderInPass => 0;

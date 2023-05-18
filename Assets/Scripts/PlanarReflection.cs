@@ -104,6 +104,9 @@ namespace UnityEngine.Rendering.Universal
             CreatePlanarReflectionTexture(camera); // create and assign RenderTexture
 
             // BeginPlanarReflections?.Invoke(context, _reflectionCamera); // callback Action for PlanarReflection "?."确保event被订阅
+            // UniversalRenderPipeline.SingleCameraRequest requestData = new UniversalRenderPipeline.SingleCameraRequest();
+            // RenderPipeline.SubmitRenderRequest<UniversalRenderPipeline.SingleCameraRequest>(_reflectionCamera,
+            //     requestData);
             UniversalRenderPipeline.RenderSingleCamera(context, _reflectionCamera); // render planar reflections  开始渲染函数
 
             data.Restore(); // restore the quality settings

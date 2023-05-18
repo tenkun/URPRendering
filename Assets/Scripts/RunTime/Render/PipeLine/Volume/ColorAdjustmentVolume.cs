@@ -38,7 +38,7 @@ namespace Rendering.Pipline
                 return false;
             //colorAdjustmentCS= RenderResources.FindComputeShader("ColorAdjustment"); 
             colorAdjustmentMat=CoreUtils.CreateEngineMaterial(RenderResources.FindPostProcess("Game/PostProcess/ColorAdjustment"));
-            return colorAdjustmentMat != null;
+            return IsActive();
         }
 
         public override bool Render(CommandBuffer cmd, ref RenderingData renderingData, RenderTargetIdentifier source,
@@ -56,7 +56,6 @@ namespace Rendering.Pipline
             colorAdjustmentMat.SetFloat("_Brightness",m_Brightness.value);
             colorAdjustmentMat.SetFloat("_Saturate",m_Saturation.value);
             cmd.Blit( source, destination, colorAdjustmentMat,-1);
-            Debug.Log("color adjustment");
             return true;
         }
 
@@ -64,7 +63,6 @@ namespace Rendering.Pipline
         {
             base.Dispose(disposing);
             CoreUtils.Destroy(colorAdjustmentMat);
-            Debug.Log("dispose");
         }
     }
 }

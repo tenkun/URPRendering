@@ -6,6 +6,7 @@ using UnityEngine.Rendering.Universal;
 
 namespace Rendering.Pipline
 {
+    using static KCameraParametersID;
     public class SDP_GlobalParameters : ScriptableRenderPass
     {
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
@@ -20,15 +21,15 @@ namespace Rendering.Pipline
             float halfHeight;
             if (camera.orthographic)
             {
-                Shader.SetGlobalVector(KCameraParametersID.kOrthoDirection,camera.transform.forward);
+                Shader.SetGlobalVector(kOrthoDirection,camera.transform.forward);
                 halfHeight = camera.orthographicSize;
                 toRight = halfHeight * camera.transform.right * aspect;
                 toTop = halfHeight * camera.transform.up;
                 
-                Shader.SetGlobalVector(KCameraParametersID.kOrthoBL,orgiPos-toRight-toTop);
-                Shader.SetGlobalVector(KCameraParametersID.kOrthoBR,orgiPos+toRight-toTop);
-                Shader.SetGlobalVector(KCameraParametersID.kOrthoTL,orgiPos-toRight+toTop);
-                Shader.SetGlobalVector(KCameraParametersID.kOrthoTR,orgiPos+toRight+toTop);
+                Shader.SetGlobalVector(kOrthoBL,orgiPos-toRight-toTop);
+                Shader.SetGlobalVector(kOrthoBR,orgiPos+toRight-toTop);
+                Shader.SetGlobalVector(kOrthoTL,orgiPos-toRight+toTop);
+                Shader.SetGlobalVector(kOrthoTR,orgiPos+toRight+toTop);
             }
             else
             {
@@ -49,19 +50,21 @@ namespace Rendering.Pipline
                 br.Normalize();
                 br *= scale;
 
-                Shader.SetGlobalVector(KCameraParametersID.kFrustumCornersRayBL, new Vector4(bl.x,bl.y,bl.z, 0));
-                Shader.SetGlobalVector(KCameraParametersID.kFrustumCornersRayBR,new Vector4(br.x,br.y,br.z,0));
-                Shader.SetGlobalVector(KCameraParametersID.kFrustumCornersRayTL,new Vector4(tl.x,tl.y,tl.z,0));
-                Shader.SetGlobalVector(KCameraParametersID.kFrustumCornersRayTR,new Vector4(tr.x,tr.y,tr.z,0));
+                Shader.SetGlobalVector(kFrustumCornersRayBL, new Vector4(bl.x,bl.y,bl.z, 0));
+                Shader.SetGlobalVector(kFrustumCornersRayBR,new Vector4(br.x,br.y,br.z,0));
+                Shader.SetGlobalVector(kFrustumCornersRayTL,new Vector4(tl.x,tl.y,tl.z,0));
+                Shader.SetGlobalVector(kFrustumCornersRayTR,new Vector4(tr.x,tr.y,tr.z,0));
             }
 
             Matrix4x4 projection = GL.GetGPUProjectionMatrix(renderingData.cameraData.GetProjectionMatrix(),renderingData.cameraData.IsCameraProjectionMatrixFlipped());
             Matrix4x4 view = renderingData.cameraData.GetViewMatrix();
             Matrix4x4 vp = projection * view;
 
-            Shader.SetGlobalMatrix(KCameraParametersID.kMatrix_VP,vp);
-            Shader.SetGlobalMatrix(KCameraParametersID.kMatrix_I_VP,vp.inverse);
-            Shader.SetGlobalMatrix(KCameraParametersID.kMatrixV,view);
+            Shader.SetGlobalMatrix(kMatrix_VP,vp);
+            Shader.SetGlobalMatrix(kMatrix_I_VP,vp.inverse);
+            Shader.SetGlobalMatrix(kMatrix_V,view);
+            Shader.SetGlobalMatrix(kMatrix_P,projection);
+            Shader.SetGlobalMatrix(kMatrix_I_P,projection.inverse);
         }
     }
 }

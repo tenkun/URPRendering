@@ -34,15 +34,15 @@ namespace Rendering.Pipline
 
         public bool SetupVolume(RenderingData renderingData)
         {
-            int activeCount=0;
-            foreach (var volume in m_Volumes)
-            { ;
-                if (volume.CheckValid(renderingData))
+            for (int i = m_Volumes.Count - 1; i >= 0; --i)
+            {
+                if (!m_Volumes[i].CheckValid(renderingData))
                 {
-                    activeCount++;
+                    m_Volumes.RemoveAt(i);
                 }
             }
-            return activeCount > 0; 
+
+            return m_Volumes.Count > 0; 
         }
         
         public override void Configure(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor)
@@ -90,10 +90,14 @@ namespace Rendering.Pipline
             {
                 if(!volume.IsActive())
                     continue;
+
+                bool success = false;
                 using (new ProfilingScope(cmd,profilingSampler))
                 {
-                    volume.Render(cmd,ref renderingData,temp1,temp2);
+                    success=volume.Render(cmd,ref renderingData,temp1,temp2);
                 }
+                if(!success)
+                    continue;
                 CoreUtils.Swap(ref temp1,ref temp2);
             }
             cmd.Blit(temp1, destination);

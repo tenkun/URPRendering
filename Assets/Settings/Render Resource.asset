@@ -15,7 +15,11 @@ MonoBehaviour:
   m_PostProcess:
   - {fileID: 4800000, guid: 7a8f3bf2b5cdb0247a55801ed68045d1, type: 3}
   - {fileID: 4800000, guid: e22ba457b60a2004dbc53ca75645b701, type: 3}
-  m_IncludeShaders: []
+  - {fileID: 4800000, guid: 6096660b6a15f2b4982bbef22350249b, type: 3}
+  m_IncludeShaders:
+  - {fileID: 4800000, guid: f0dd541c04fe6834399994fc6b187699, type: 3}
+  - {fileID: 4800000, guid: a64e88860dc9c6d41a89f37fcf0a7e79, type: 3}
+  - {fileID: 4800000, guid: a64e88860dc9c6d41a89f37fcf0a7e79, type: 3}
   m_ComputeShader:
   - {fileID: 7200000, guid: 40c666da055e5b94990123a76f991561, type: 3}
   - {fileID: 7200000, guid: 75c32c570e8470f4e84e739a6fa5d647, type: 3}

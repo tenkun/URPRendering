@@ -32,6 +32,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Active: 1
   m_Resources: {fileID: 11400000, guid: 6ee1d8494ce303c4f9cf1f3e1b87a95e, type: 2}
+  m_Setting:
+    m_Normal: 1
+    m_Mask: 0
 --- !u!114 &-3020284659400647739
 MonoBehaviour:
   m_ObjectHideFlags: 0

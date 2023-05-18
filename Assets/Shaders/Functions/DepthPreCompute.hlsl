@@ -6,6 +6,8 @@ float3 _FrustumCornersRayTR;
 float4x4 _Matrix_VP;
 float4x4 _Matrix_V;
 float4x4 _Matrix_I_VP;
+float4x4 _Matrix_P;
+float4x4 _Matrix_I_P;
 
 inline float RawToEyeDepthOrthographic(float _rawDepth,float4 _projectionParams)
 {
@@ -77,4 +79,10 @@ float4 TransformClipToScreen(float4 clipPos)
     screenPos.y=1.h-screenPos.y;
     #endif
     return  screenPos;
+}
+
+float4 TransformHClipToScreen(float4 hclipPos)
+{
+    float2 uv= hclipPos.xy/_ScaledScreenParams.xy;
+    return  float4(uv,hclipPos.zw);
 }

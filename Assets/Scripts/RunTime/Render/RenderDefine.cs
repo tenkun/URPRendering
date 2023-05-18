@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-public static  class KRenderTexture
+public static class KRenderTexture
 {
     public static readonly int kCameraNormalTex = Shader.PropertyToID("_CameraNormalTexture");
     public static readonly RenderTargetIdentifier kRTCameraNormalTex = new RenderTargetIdentifier(kCameraNormalTex);
@@ -31,9 +31,11 @@ public static class KCameraParametersID
     public static readonly int kOrthoTL = Shader.PropertyToID("_OrthoTL");
     public static readonly int kOrthoTR = Shader.PropertyToID("_OrthoTR");
 
-    public static readonly int kMatrixV = Shader.PropertyToID("_Matrix_V");
+    public static readonly int kMatrix_V = Shader.PropertyToID("_Matrix_V");
     public static readonly int kMatrix_VP = Shader.PropertyToID("_Matrix_VP");
     public static readonly int kMatrix_I_VP = Shader.PropertyToID("_Matrix_I_VP");
+    public static readonly int kMatrix_P = Shader.PropertyToID("_Matrix_P");
+    public static readonly int kMatrix_I_P = Shader.PropertyToID("_Matrix_I_P");
 }
 
 public static class KGlobalParametersID

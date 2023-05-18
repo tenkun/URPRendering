@@ -117,6 +117,7 @@ Shader "Game/Lit/Transparency/Water"
             TEXTURE2D(_ReflectTex);SAMPLER(sampler_ReflectTex);
             TEXTURE2D(_FoamTex);SAMPLER(sampler_FoamTex);
             TEXTURE2D(_CausticsTex);SAMPLER(sampler_CausticsTex);
+            TEXTURE2D(_SSRTexture);SAMPLER(sampler_SSRTexture);
             float4 _CameraDepthTexture_TexelSize;
             float4 _ReflectTex_TexelSize;
             float4 _Color;
@@ -207,7 +208,7 @@ Shader "Game/Lit/Transparency/Water"
             float3 GetFoamAtten(float3 poistionWS,float4 screenPos)
             {
             	float depth=SAMPLE_TEXTURE2D_X(_CameraDepthTexture,sampler_CameraDepthTexture,screenPos.xy).r;
-            	float3 bgPositionWS=ReconstructWorldPosition(depth,screenPos.xy);
+            	float3 bgPositionWS=ReconstructWorldPosition(screenPos.xy,depth);
             	float dist=distance(poistionWS,bgPositionWS)+0.1;
             	return pow(max(0,1 - dist / lerp(0.1,1,_FoamPower)),3);
             }
@@ -331,15 +332,16 @@ Shader "Game/Lit/Transparency/Water"
             	#endif
             	
             	#if _PLANARREFLECT
-            	float2 uvOffset=normal.xz*_ReflectionStrength;
-            	uvOffset.y *=_ReflectTex_TexelSize.z * abs(_ReflectTex_TexelSize.y);
-            	float2 uv=AlignWithGrabTexel(screenPos.xy+uvOffset/screenPos.w);
-            	envHdrCol=SAMPLE_TEXTURE2D(_ReflectTex,sampler_ReflectTex,uv).rgb;
+            	// float2 uvOffset=normal.xz*_ReflectionStrength;
+            	// uvOffset.y *=_ReflectTex_TexelSize.z * abs(_ReflectTex_TexelSize.y);
+            	// float2 uv=AlignWithGrabTexel(screenPos.xy+uvOffset/screenPos.w);
+            	// envHdrCol=SAMPLE_TEXTURE2D(_ReflectTex,sampler_ReflectTex,uv).rgb;
+            	envHdrCol=SAMPLE_TEXTURE2D(_SSRTexture,sampler_SSRTexture,screenPos.xy).rgb;
             	#endif
 
-            	float reflCoeff = GetReflectionCoefficient(viewDirWS,normal,5);
-            	albedo= lerp(albedo,envHdrCol,reflCoeff);
-            	
+            	float reflCoeff = GetReflectionCoefficient(viewDirWS,normal,1);
+            	albedo+= lerp(0,envHdrCol,reflCoeff);
+
                 //halflanbert
                 // float3 diffuse=(dot(lightDir,normal)*0.5+0.5)*real4(light.color,1)*albedo;
                 // //float3 diffuse=LightingLambert(light.color,lightDir,normal);

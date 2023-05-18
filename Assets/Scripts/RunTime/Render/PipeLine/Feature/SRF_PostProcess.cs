@@ -8,7 +8,7 @@ using UnityEngine.Rendering.Universal;
 
 namespace Rendering.Pipline
 {
-    public enum BufferType
+    public enum RenderTextureBufferType
     {
         CameraColor,
         Custom
@@ -22,8 +22,8 @@ namespace Rendering.Pipline
         {
             public bool m_ColorAdjustment = true;
             // public RenderPassEvent m_RenderPassEvent = RenderPassEvent.BeforeRenderingPostProcessing;
-            public BufferType sourceType = BufferType.CameraColor;
-            public BufferType destinationType = BufferType.CameraColor;
+            public RenderTextureBufferType sourceType = RenderTextureBufferType.CameraColor;
+            public RenderTextureBufferType destinationType = RenderTextureBufferType.CameraColor;
         }
 
         public Settings settings = new Settings();
