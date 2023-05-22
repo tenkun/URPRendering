@@ -6,6 +6,7 @@ using UnityEngine.Rendering.Universal;
 
 namespace Rendering.Pipline
 {
+    [VolumeComponentMenu("Custom/Fog")]
     public class FogVolume : VolumeBase
     {
         public ColorParameter m_FogColor=new ColorParameter(UnityEngine.Color.white);

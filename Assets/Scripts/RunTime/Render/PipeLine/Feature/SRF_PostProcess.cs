@@ -52,19 +52,19 @@ namespace Rendering.Pipline
             var afterOpaqueAndSkyVolume = _volumeBases
                 .Where(v => v.InjectionPoint == PostProcessInjectionPoint.AfterOpaqueAndSky)
                 .OrderBy(v => v.OrderInPass).ToList();
-            afterOpaqueAndSky = new SDP_PostProcess(this.name,this.settings,afterOpaqueAndSkyVolume);
+            afterOpaqueAndSky = new SDP_PostProcess("FSAfterOpaqueAndSky",this.settings,afterOpaqueAndSkyVolume);
             afterOpaqueAndSky.renderPassEvent = RenderPassEvent.AfterRenderingOpaques;
 
             var beforePostProcessVolume = _volumeBases
                 .Where(v => v.InjectionPoint == PostProcessInjectionPoint.BeforePostProcess)
                 .OrderBy(v => v.OrderInPass).ToList();
-            beforePostProcess = new SDP_PostProcess(this.name,this.settings,beforePostProcessVolume);
+            beforePostProcess = new SDP_PostProcess("FSBeforePostProcess",this.settings,beforePostProcessVolume);
             beforePostProcess.renderPassEvent = RenderPassEvent.BeforeRenderingPostProcessing;
 
             var afterPostProcessVolume = _volumeBases
                 .Where(v => v.InjectionPoint == PostProcessInjectionPoint.AfterPostProcess)
                 .OrderBy(v => v.OrderInPass).ToList();
-            afterPostProcess = new SDP_PostProcess(this.name,this.settings,afterPostProcessVolume);
+            afterPostProcess = new SDP_PostProcess("FSAfterPostProcess",this.settings,afterPostProcessVolume);
             afterPostProcess.renderPassEvent = RenderPassEvent.AfterRendering;
         }
 

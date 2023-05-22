@@ -13,9 +13,9 @@ namespace Rendering.Pipline
     public class ScreenSpaceReflectionVolume : VolumeBase
     {
         [Header("SSR")]
-        public ClampedFloatParameter m_MaxRayMarchingDistance = new ClampedFloatParameter(500,0,1000);
+        public ClampedFloatParameter m_MaxRayMarchingDistance = new ClampedFloatParameter(500,0,1000,true);
         public ClampedIntParameter m_MaxRayMarchingStep = new ClampedIntParameter(64, 0, 256);
-        public ClampedIntParameter m_MaxRayMarchingBinarySearchCount = new ClampedIntParameter(8, 0, 32);
+        //public ClampedIntParameter m_MaxRayMarchingBinarySearchCount = new ClampedIntParameter(8, 0, 32);
         public ClampedFloatParameter m_RayMarchingStepSize = new ClampedFloatParameter(8, 1, 10);
         public ClampedFloatParameter m_DepthThickness = new ClampedFloatParameter(0.01f, 0, 2);
 
@@ -45,7 +45,7 @@ namespace Rendering.Pipline
             if (!VolumeManager.instance.IsComponentActiveInMask<ScreenSpaceReflectionVolume>(layer))
                 return false;
             ssrMat = CoreUtils.CreateEngineMaterial(RenderResources.FindInclude("Hidden/SSR"));
-            ssr_handle=Shader.PropertyToID("_SSRTexture");
+            ssr_handle = Shader.PropertyToID("_SSRTexture");
             return true;
         }
 
@@ -58,7 +58,7 @@ namespace Rendering.Pipline
             cmd.GetTemporaryRT(ssr_handle,descriptor,FilterMode.Bilinear);
             ssrMat.SetFloat("_MaxDistance",m_MaxRayMarchingDistance.value);
             ssrMat.SetInt("_MaxStep",m_MaxRayMarchingStep.value);
-            ssrMat.SetInt("_MaxSearchCount",m_MaxRayMarchingBinarySearchCount.value);
+            //ssrMat.SetInt("_MaxSearchCount",m_MaxRayMarchingBinarySearchCount.value);
             ssrMat.SetFloat("_StepSize",m_RayMarchingStepSize.value);
             ssrMat.SetFloat("_DepthThickness",m_DepthThickness.value);
             ssrMat.SetFloat("_BlurOffset",m_BlurRadius.value);

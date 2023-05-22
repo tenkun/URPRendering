@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b2db86121404754db890f4c8dfe81b2, type: 3}
   m_Name: Bloom
   m_EditorClassIdentifier: 
-  active: 0
+  active: 1
   skipIterations:
     m_OverrideState: 0
     m_Value: 1
@@ -75,6 +75,37 @@ MonoBehaviour:
   rounded:
     m_OverrideState: 0
     m_Value: 0
+--- !u!114 &-220350323796020372
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7063571121a919b4fb309c000e2616a0, type: 3}
+  m_Name: ScreenSpacePlanarReflectionVolume
+  m_EditorClassIdentifier: 
+  active: 1
+  m_RenderTextureSize:
+    m_OverrideState: 1
+    m_Value: 512
+  m_PlaneHeight:
+    m_OverrideState: 1
+    m_Value: 0.01
+  m_FadeOutVetical:
+    m_OverrideState: 0
+    m_Value: 0.25
+  m_FadeOutHorizontal:
+    m_OverrideState: 0
+    m_Value: 0.35
+  m_FillHole:
+    m_OverrideState: 1
+    m_Value: 1
+  m_HDR:
+    m_OverrideState: 1
+    m_Value: 1
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -93,7 +124,7 @@ MonoBehaviour:
   - {fileID: -7011558710299706105}
   - {fileID: 1407165593532797803}
   - {fileID: 6888059911160731204}
-  - {fileID: 8116718171467148748}
+  - {fileID: -220350323796020372}
 --- !u!114 &849379129802519247
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -144,57 +175,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e49eb6653cf8c74ba3356018e284fbd, type: 3}
   m_Name: ScreenSpaceReflectionVolume
   m_EditorClassIdentifier: 
-  active: 1
+  active: 0
   m_MaxRayMarchingDistance:
     m_OverrideState: 1
     m_Value: 500
   m_MaxRayMarchingStep:
     m_OverrideState: 1
-    m_Value: 123
-  m_MaxRayMarchingBinarySearchCount:
-    m_OverrideState: 1
-    m_Value: 15
+    m_Value: 48
   m_RayMarchingStepSize:
     m_OverrideState: 1
-    m_Value: 1.54
+    m_Value: 1
   m_DepthThickness:
     m_OverrideState: 1
-    m_Value: 0.142
---- !u!114 &8116718171467148748
-MonoBehaviour:
-  m_ObjectHideFlags: 3
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 397a63e971d4cff478e6c3fe2fe84ebf, type: 3}
-  m_Name: FogVolume
-  m_EditorClassIdentifier: 
-  active: 0
-  m_FogColor:
+    m_Value: 0.069
+  m_BlurRadius:
     m_OverrideState: 1
-    m_Value: {r: 1, g: 1, b: 1, a: 1}
-  m_NoiseTex:
+    m_Value: 0
+  m_Iteration:
     m_OverrideState: 1
-    m_Value: {fileID: 2800000, guid: e48a85f86d500c641832d2103817ccdd, type: 3}
-    dimension: 1
-  m_NoiseAmount:
+    m_Value: 3
+  m_RTDownScaling:
     m_OverrideState: 1
-    m_Value: 0.771
-  m_FogHeightDensity:
-    m_OverrideState: 1
-    m_Value: 1
-  m_FogDepthDensity:
-    m_OverrideState: 1
-    m_Value: 0.001
-  m_FogSpeed:
-    m_OverrideState: 1
-    m_Value: {x: 0.1, y: 0.1}
-  m_FogHeightRange:
-    m_OverrideState: 1
-    m_Value: {x: 0, y: 0.9046052}
-  m_FogDepthRange:
-    m_OverrideState: 1
-    m_Value: {x: 0, y: 2.4671068}
+    m_Value: 2

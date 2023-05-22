@@ -37,7 +37,7 @@ Shader "Game/Lit/Transparency/Water"
     	
     	[Header(WaterFog)]
     	_WaterFogColor("Water Fog Color",Color)=(1,1,1,1)
-    	_WaterFogDensity("Water Fog Desity",Range(0,2))=0.1
+    	_WaterFogDensity("Water Fog Desity",Range(0,5))=0.1
     	
     	[Header(Refract)]
     	_RefractionStrength("Refract Strength",Range(0,1))=0.25

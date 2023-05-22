@@ -21,6 +21,7 @@ Shader "Game/Unfinished/ReflectionTest"
             #include "Assets/Shaders/Functions/Instance.hlsl"
             #include "Assets/Shaders/Functions/ValueMapping.hlsl"
             #include "Assets/Shaders/Functions/DepthPreCompute.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
 
             struct a2v
             {
@@ -38,6 +39,7 @@ Shader "Game/Unfinished/ReflectionTest"
 
             TEXTURE2D(_MainTex);SAMPLER(sampler_MainTex);
             TEXTURE2D(_SSRTexture);SAMPLER(sampler_SSRTexture);
+            TEXTURE2D(_SSPRTex);SAMPLER(sampler_SSPRTex);
             INSTANCING_BUFFER_START
                 INSTANCING_PROP(float4,_Color)
                 INSTANCING_PROP(float4,_MainTex_ST)
@@ -57,7 +59,10 @@ Shader "Game/Unfinished/ReflectionTest"
             {
 				UNITY_SETUP_INSTANCE_ID(i);
                 float4 screenPos=TransformHClipToScreen(i.positionCS);
-                float3 finalCol=SAMPLE_TEXTURE2D(_SSRTexture,sampler_SSRTexture,screenPos.xy).rgb;
+                float depth=SampleSceneDepth(screenPos.xy);
+                float3 positionWS=TransformNDCToWorld(screenPos,depth);
+               // float3 finalCol=SAMPLE_TEXTURE2D(_SSRTexture,sampler_SSRTexture,screenPos.xy).rgb;
+                float3 finalCol=SAMPLE_TEXTURE2D(_SSPRTex,sampler_SSPRTex,screenPos.xy).rgb;
                 return float4(finalCol,1);
             }
             ENDHLSL
