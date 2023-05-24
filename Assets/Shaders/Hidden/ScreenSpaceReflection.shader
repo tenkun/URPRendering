@@ -19,10 +19,10 @@ Shader "Hidden/SSR"
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
-            #include "Assets/Shaders/Functions/Instance.hlsl"
-            #include "Assets/Shaders/Functions/ValueMapping.hlsl"
-            #include "Assets/Shaders/Functions/DepthPreCompute.hlsl"
-            #include "Assets/Shaders/Functions/DepthNormal.hlsl"
+            #include "Assets/Shaders/Includes/Instance.hlsl"
+            #include "Assets/Shaders/Includes/ValueMapping.hlsl"
+            #include "Assets/Shaders/Includes/DepthPreCompute.hlsl"
+            #include "Assets/Shaders/Includes/DepthNormal.hlsl"
 
             #define SSRDitherMatrix_m0 float4(0,0.5,0.125,0.625)
             #define SSRDitherMatrix_m1 float4(0.75,0.25,0.875,0.375)
@@ -139,7 +139,7 @@ Shader "Hidden/SSR"
         Pass
         {
             HLSLPROGRAM
-            #include "Assets/Shaders/Functions/Blur.hlsl"
+            #include "Assets/Shaders/Includes/Blur.hlsl"
             #pragma vertex vert_DownSample
             #pragma fragment frag_DownSample
             ENDHLSL
@@ -148,7 +148,7 @@ Shader "Hidden/SSR"
         Pass
         {
             HLSLPROGRAM
-            #include "Assets/Shaders/Functions/Blur.hlsl"
+            #include "Assets/Shaders/Includes/Blur.hlsl"
             #pragma vertex vert_UpSample
             #pragma fragment frag_UpSample
             ENDHLSL

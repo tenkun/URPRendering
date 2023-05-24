@@ -45,7 +45,7 @@ namespace Rendering.Pipline
             if (!VolumeManager.instance.IsComponentActiveInMask<ScreenSpaceReflectionVolume>(layer))
                 return false;
             ssrMat = CoreUtils.CreateEngineMaterial(RenderResources.FindInclude("Hidden/SSR"));
-            ssr_handle = Shader.PropertyToID("_SSRTexture");
+            ssr_handle = Shader.PropertyToID("_SSRTex");
             return true;
         }
 

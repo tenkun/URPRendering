@@ -1,6 +1,9 @@
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-#include "Assets/Shaders/Functions/ValueMapping.hlsl"
-#include "Assets/Shaders/Functions/DepthPreCompute.hlsl"
+#include "Assets/Shaders/Includes/ValueMapping.hlsl"
+#include "Assets/Shaders/Includes/DepthPreCompute.hlsl"
+
+#define NUMTHREAD_X 8
+#define NUMTHREAD_Y 8
 
 RWTexture2D<float4> _SSPRTex;
 RWTexture2D<float> _ReDepthBufferRT;
@@ -13,9 +16,36 @@ SAMPLER(sampler_CameraDepthTexture);
 float2 _RTSize;
 float _PlaneHeight;
 
+float3 _CameraDirection;
+
+float _FadeOutVertical;
+float _FadeOutHorizontal;
+float _ScreenLRStretchIntensity;
+float _ScreenLRStretchThreshold;
+
+half ConvertScreenUV2FadeOutParam(float2 screenUV,float positionWSY)
+{
+    half fadeOutAlpha=smoothstep(1,1-_FadeOutVertical,screenUV.y);
+    fadeOutAlpha*=smoothstep(1,1-_FadeOutHorizontal*(_PlaneHeight-positionWSY),abs(screenUV.x*2-1));
+    return fadeOutAlpha;
+}
+
+float2 StretchScreenUV(float2 screenUV,float positionWSY)
+{
+    float heightStretch = (abs(positionWSY - _PlaneHeight));
+    float angleStretch = -_CameraDirection.y;
+    float screenStretch = saturate(abs(screenUV.x * 2 - 1) - _ScreenLRStretchThreshold);
+
+    screenUV.x=screenUV.x*2-1;
+    screenUV.x*=1+angleStretch*screenStretch*heightStretch*_ScreenLRStretchIntensity;
+    screenUV.x=saturate(screenUV.x*0.5+0.5);
+   
+    return screenUV;
+}
+
 #pragma kernel ScreenSpacePlanarReflect
 
-[numthreads(8,8,1)]
+[numthreads(NUMTHREAD_X,NUMTHREAD_Y,1)]
 void ScreenSpacePlanarReflect (uint3 id : SV_DispatchThreadID)
 {
     _SSPRTex[id.xy]=float4(0,0,0,0);
@@ -41,36 +71,54 @@ void ScreenSpacePlanarReflect (uint3 id : SV_DispatchThreadID)
     float2 earlyTest=abs(reflectUV-0.5);
     if(earlyTest.x>=0.5||earlyTest.y>=0.5)
         return;
-    
+
+    reflectUV=StretchScreenUV(reflectUV,positionWS.y);
     float4 color=_CameraOpaqueTexture.SampleLevel(sampler_CameraOpaqueTexture,screenUV,0);
     float2 reflectPixelIndex=reflectUV*_RTSize;
     if(positionWS.y<_ReDepthBufferRT[reflectPixelIndex])
     {
+        float a=ConvertScreenUV2FadeOutParam(screenUV,reflectPosWS.y);
+        color.a=saturate(a);
         _SSPRTex[reflectPixelIndex]=color;
         _ReDepthBufferRT[reflectPixelIndex]=positionWS.y;
     }
 }
 
+half getLuminance(float4 color)
+{
+    return color.r*0.22+color.g*0.8+color.b*0.02;
+}
+
 #pragma kernel FillHoles
 
-[numthreads(8,8,1)]
+[numthreads(NUMTHREAD_X,NUMTHREAD_Y,1)]
 void FillHoles(uint3 id:SV_DispatchThreadID)
 {
     //fill holes each 2*2
-    id.xy*=2;
+    // id.xy*=2;
+    //
+    // half4 center=_SSPRTex[id.xy+uint2(0,0)];
+    // half4 right=+_SSPRTex[id.xy+uint2(0,1)];
+    // half4 bottom=_SSPRTex[id.xy+uint2(1,0)];
+    // half4 bottomRight=_SSPRTex[id.xy+uint2(1,1)];
+    //
+    // half4 best=center;
+    // best=right.a>best.a+0.5?right:best;
+    // best=bottom.a>best.a+0.5?bottom:best;
+    // best=bottomRight.a>best.a+0.5?bottomRight:best;
+    //
+    // _SSPRTex[id.xy+uint2(0,0)]=best.a>center.a+0.5?best:center;
+    // _SSPRTex[id.xy+uint2(0,1)]=best.a>right.a+0.5?best:right;
+    // _SSPRTex[id.xy+uint2(1,0)]=best.a>bottom.a+0.5?best:bottom;
+    // _SSPRTex[id.xy+uint2(0,0)]=best.a>bottomRight.a+0.5?best:bottomRight;
 
-    half4 center=_SSPRTex[id.xy+uint2(0,0)];
-    half4 right=+_SSPRTex[id.xy+uint2(0,1)];
-    half4 bottom=_SSPRTex[id.xy+uint2(1,0)];
-    half4 bottomRight=_SSPRTex[id.xy+uint2(1,1)];
-
-    half4 best=center;
-    best=right.a>best.a+0.5?right:best;
-    best=bottom.a>best.a+0.5?bottom:best;
-    best=bottomRight.a>best.a+0.5?bottomRight:best;
-
-    _SSPRTex[id.xy+uint2(0,0)]=best.a>center.a+0.5?best:center;
-    _SSPRTex[id.xy+uint2(0,1)]=best.a>right.a+0.5?best:right;
-    _SSPRTex[id.xy+uint2(1,0)]=best.a>bottom.a+0.5?best:bottom;
-    _SSPRTex[id.xy+uint2(0,0)]=best.a>bottomRight.a+0.5?best:bottomRight;
+    float4 center=_SSPRTex[id.xy];
+    float4 up=_SSPRTex[uint2(id.x,id.y+1)];
+    float4 right=_SSPRTex[uint2(id.x+1,id.y)];
+    float centerLum=getLuminance(center);
+    float upLum=getLuminance(up);
+    float rightLum=getLuminance(right);
+    if(centerLum!=0||(upLum+rightLum)==0)
+        return;
+    _SSPRTex[id.xy]=upLum>rightLum?up:right;
 }

@@ -27,7 +27,9 @@ Material:
   m_ValidKeywords:
   - _CAUSTICS
   - _FOAM
-  m_InvalidKeywords: []
+  - _REFLECT
+  m_InvalidKeywords:
+  - _PLANARREFLECT
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -95,7 +97,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _NormalTex:
-        m_Texture: {fileID: 2800000, guid: ca2018cce4b3041ca94fe509b701bce5, type: 3}
+        m_Texture: {fileID: 2800000, guid: 6c1455fbed5c9bd4b85e2a4abee35dc1, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
@@ -143,7 +145,8 @@ Material:
     - _FlowOffset: 0
     - _FlowStrength: 0.1
     - _Foam: 1
-    - _FoamPower: 0.431
+    - _FoamPower: 0.454
+    - _FoamTilling: 4.92
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
@@ -153,13 +156,14 @@ Material:
     - _OcclusionAmount: 0.829
     - _OcclusionStrength: 1
     - _Parallax: 0.005
-    - _PlanarReflect: 0
-    - _ProbeReflect: 0
+    - _PlanarReflect: 1
+    - _ProbeReflect: 1
     - _QueueOffset: 0
     - _ReceiveShadows: 1
-    - _ReflectionStrength: 1
-    - _RefractionStrength: 0.55
-    - _Smoothness: 0.982
+    - _ReflectType: 2
+    - _ReflectionStrength: 0.08
+    - _RefractionStrength: 0.416
+    - _Smoothness: 0.904
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _Speed: 0.35
@@ -169,7 +173,7 @@ Material:
     - _Tilling: 5
     - _UJump: 0.25
     - _VJump: 0.25
-    - _WaterFogDensity: 3.68
+    - _WaterFogDensity: 3.08
     - _WaterFogDesity: 0.77
     - _Wave: 0
     - _WaveSpeed: 0.5
@@ -181,7 +185,7 @@ Material:
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
     - _SpecularColor: {r: 1, g: 1, b: 1, a: 1}
-    - _WaterFogColor: {r: 0.59465104, g: 0.7306945, b: 0.7830188, a: 1}
+    - _WaterFogColor: {r: 0.6497419, g: 0.7963795, b: 0.8773585, a: 1}
     - _WaveA: {r: 1, g: 1, b: 0.25, a: 6}
     - _WaveB: {r: 0, g: 0.6, b: 0.25, a: 3}
     - _WaveC: {r: 1, g: 1.3, b: 0.15, a: 1.8}

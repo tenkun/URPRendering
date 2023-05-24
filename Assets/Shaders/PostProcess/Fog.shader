@@ -24,9 +24,9 @@ Shader "Hidden/PostPress/Fog"
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
-            #include "Assets/Shaders/Functions/Instance.hlsl"
-            #include "Assets/Shaders/Functions/ValueMapping.hlsl"
-            #include "Assets/Shaders/Functions/DepthPreCompute.hlsl"
+            #include "Assets/Shaders/Includes/Instance.hlsl"
+            #include "Assets/Shaders/Includes/ValueMapping.hlsl"
+            #include "Assets/Shaders/Includes/DepthPreCompute.hlsl"
 
             struct a2v
             {

@@ -11,8 +11,10 @@ namespace Rendering.Pipline
     {
         public ClampedFloatParameter m_RenderTextureSize = new ClampedFloatParameter(512,128,1024);
         public FloatParameter m_PlaneHeight = new FloatParameter(0);
-        public ClampedFloatParameter m_FadeOutVetical = new ClampedFloatParameter(0.25f, 0, 1);
+        public ClampedFloatParameter m_FadeOutVertical = new ClampedFloatParameter(0.25f, 0, 1);
         public ClampedFloatParameter m_FadeOutHorizontal = new ClampedFloatParameter(0.35f, 0, 1);
+        public ClampedFloatParameter m_ScreenLRStretchIntensity = new ClampedFloatParameter(4, 0, 8);
+        public ClampedFloatParameter m_ScreenLRStretchThreshold = new ClampedFloatParameter(0.7f, -1, 1);
         
         [Header("Performance")]
         public BoolParameter m_FillHole = new BoolParameter(false);
@@ -75,13 +77,20 @@ namespace Rendering.Pipline
             cmd.SetComputeTextureParam(ssprCS,ssprKernelId,Shader.PropertyToID("_CameraOpaqueTexture"),renderingData.cameraData.renderer.cameraColorTargetHandle);
             cmd.SetComputeTextureParam(ssprCS,ssprKernelId,Shader.PropertyToID("_CameraDepthTexture"),renderingData.cameraData.renderer.cameraDepthTargetHandle);
             cmd.SetComputeTextureParam(ssprCS, ssprKernelId, reDepthBufferID, reDepthBufferID_Identifier);
+            
+            cmd.SetComputeFloatParam(ssprCS,Shader.PropertyToID("_FadeOutVertical"),m_FadeOutVertical.value);
+            cmd.SetComputeFloatParam(ssprCS,Shader.PropertyToID("_FadeOutHorizontal"),m_FadeOutHorizontal.value);
+            cmd.SetComputeFloatParam(ssprCS,Shader.PropertyToID("_ScreenLRStretchIntensity"),m_ScreenLRStretchIntensity.value);
+            cmd.SetComputeFloatParam(ssprCS,Shader.PropertyToID("_ScreenLRStretchThreshold"),m_ScreenLRStretchThreshold.value);
+            cmd.SetComputeVectorParam(ssprCS,Shader.PropertyToID("_CameraDirection"),renderingData.cameraData.camera.transform.forward);
 
-            cmd.DispatchCompute(ssprCS, ssprKernelId, (int)rtSize.x / SHADER_NUMTHREAD_X,
-                (int)rtSize.y / SHADER_NUMTHREAD_Y, 1);
+            cmd.DispatchCompute(ssprCS, ssprKernelId, Mathf.CeilToInt(rtSize.x / SHADER_NUMTHREAD_X),
+                Mathf.CeilToInt(rtSize.y / SHADER_NUMTHREAD_Y), 1);
             if (m_FillHole.value)
             {
                 int fillHoleKernel = ssprCS.FindKernel("FillHoles");
-                cmd.DispatchCompute(ssprCS,fillHoleKernel,Mathf.CeilToInt(rtSize.x/2),Mathf.CeilToInt(rtSize.y/2),1);
+                cmd.SetComputeTextureParam(ssprCS,fillHoleKernel,ssprID,sspr_Identifier);
+                cmd.DispatchCompute(ssprCS,fillHoleKernel,Mathf.CeilToInt(rtSize.x/SHADER_NUMTHREAD_X),Mathf.CeilToInt(rtSize.y/SHADER_NUMTHREAD_Y),1);
             }
             return false;
         }

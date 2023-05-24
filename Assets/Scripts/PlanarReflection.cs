@@ -32,7 +32,7 @@ namespace UnityEngine.Rendering.Universal
 
         private static Camera _reflectionCamera;
         private RenderTexture _reflectionTexture;
-        private readonly int _planarReflectionTextureId = Shader.PropertyToID("_ReflectTex");
+        private readonly int _planarReflectionTextureId = Shader.PropertyToID("_PlanarTex");
 
         // public static event Action<ScriptableRenderContext, Camera> BeginPlanarReflections;
         private void OnEnable()

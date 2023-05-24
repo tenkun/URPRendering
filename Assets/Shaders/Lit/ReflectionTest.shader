@@ -18,9 +18,9 @@ Shader "Game/Unfinished/ReflectionTest"
             #pragma fragment frag
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-            #include "Assets/Shaders/Functions/Instance.hlsl"
-            #include "Assets/Shaders/Functions/ValueMapping.hlsl"
-            #include "Assets/Shaders/Functions/DepthPreCompute.hlsl"
+            #include "Assets/Shaders/Includes/Instance.hlsl"
+            #include "Assets/Shaders/Includes/ValueMapping.hlsl"
+            #include "Assets/Shaders/Includes/DepthPreCompute.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
 
             struct a2v
@@ -62,7 +62,9 @@ Shader "Game/Unfinished/ReflectionTest"
                 float depth=SampleSceneDepth(screenPos.xy);
                 float3 positionWS=TransformNDCToWorld(screenPos,depth);
                // float3 finalCol=SAMPLE_TEXTURE2D(_SSRTexture,sampler_SSRTexture,screenPos.xy).rgb;
-                float3 finalCol=SAMPLE_TEXTURE2D(_SSPRTex,sampler_SSPRTex,screenPos.xy).rgb;
+                float4 reflectCol=SAMPLE_TEXTURE2D(_SSPRTex,sampler_SSPRTex,screenPos.xy).rgba;
+                float3 finalCol=SAMPLE_TEXTURE2D(_MainTex,sampler_MainTex,screenPos.xy).rgb;
+                finalCol=lerp(finalCol,reflectCol.rgb,reflectCol.a);
                 return float4(finalCol,1);
             }
             ENDHLSL

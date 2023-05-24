@@ -94,12 +94,18 @@ MonoBehaviour:
   m_PlaneHeight:
     m_OverrideState: 1
     m_Value: 0.01
-  m_FadeOutVetical:
-    m_OverrideState: 0
-    m_Value: 0.25
+  m_FadeOutVertical:
+    m_OverrideState: 1
+    m_Value: 0.521
   m_FadeOutHorizontal:
-    m_OverrideState: 0
-    m_Value: 0.35
+    m_OverrideState: 1
+    m_Value: 0.312
+  m_ScreenLRStretchIntensity:
+    m_OverrideState: 1
+    m_Value: 0.83
+  m_ScreenLRStretchThreshold:
+    m_OverrideState: 1
+    m_Value: 0.7
   m_FillHole:
     m_OverrideState: 1
     m_Value: 1

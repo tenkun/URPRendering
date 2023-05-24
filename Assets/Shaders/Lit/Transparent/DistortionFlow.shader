@@ -6,7 +6,7 @@ Shader "Game/Lit/Transparency/Water"
         _Color("Color Tint",Color)=(1,1,1,1)
         
         [Header(Flow)]
-        _FlowTex("Flow Tex",2D)="white"{}
+        [NoScaleOffset]_FlowTex("Flow Tex",2D)="white"{}
         _FlowStrength("Flow Strength",Range(0.1,1.5))=1
         _FlowOffset ("Flow Offset", Float) = 0
         _Speed("Speed",Range(0.1,2))=1
@@ -16,7 +16,7 @@ Shader "Game/Lit/Transparency/Water"
         _NoiseTex("Noise Tex",2D)="white"{}
         
         [Header(Normal)]
-        _NormalTex("Normal Tex",2D)="bump"{}
+        [NoScaleOffset]_NormalTex("Normal Tex",2D)="bump"{}
         _DeriveHeightTex("Derive Height Tex",2D)="white"{}
         _HeightScale("Height Scale",float)=1
         _HeightScaleModulated("Height Scale Modulated",float)=1
@@ -29,13 +29,10 @@ Shader "Game/Lit/Transparency/Water"
     	[Foldout(_WAVE)]_WaveSpeed ("Wave Speed", float) = 1
         
         [Header(Mask)]
-        [NoScaleOffset]_MaskMap("Mask Map",2D)="white"{}
-        _Metallic("Metallic",Range(0,1))=1
         _Smoothness("Smoothness",Range(0,1))=1
         _SpecularColor("Specular Color",Color)=(1,1,1,1)
-        _OcclusionAmount("Occlusion Amount",Range(0,1))=1
     	
-    	[Header(WaterFog)]
+         [Header(WaterFog)]
     	_WaterFogColor("Water Fog Color",Color)=(1,1,1,1)
     	_WaterFogDensity("Water Fog Desity",Range(0,5))=0.1
     	
@@ -43,18 +40,19 @@ Shader "Game/Lit/Transparency/Water"
     	_RefractionStrength("Refract Strength",Range(0,1))=0.25
     	
     	[Header(Reflect)]
-    	[Toggle(_PROBEREFLECT)]_ProbeReflect("Use Reflection Probe",int)=0
-    	[Toggle(_PLANARREFLECT)]_PlanarReflect("Use Planar Reflection",int)=0
-    	_ReflectionStrength("Reflect Strength",Range(0,1))=0.25
+    	[Toggle(_REFLECT)]_ProbeReflect("Reflection",int)=0
+    	[Foldout(_REFLECT)][Enum(Planar,0,SSR,1,SSPR,2)]_ReflectType("Reflect Type",int)=2
+	    [Foldout(_REFLECT)]_ReflectionStrength("Reflect Strength",Range(0,1))=0.25
     	
     	[Header(Foam)]
     	[Toggle(_FOAM)]_Foam("Use Foam",int)=0
-    	[Foldout(_FOAM)]_FoamTex("Foam Tex",2D)="white"{}
-    	[Foldout(_FOAM)]_FoamPower("FoamPower",Range(0,1))=0.5
+    	[NoScaleOffset][Foldout(_FOAM)]_FoamTex("Foam Tex",2D)="white"{}
+    	[Foldout(_FOAM)]_FoamPower("Foam Power",Range(0,1))=0.5
+    	[Foldout(_FOAM)]_FoamTilling("Foam Tilling",Range(1,20))=1
     	
     	[Header(Caustics)]
     	[Toggle(_CAUSTICS)]_Caustics("Use Caustics",int)=0
-    	[Foldout(_CAUSTICS)]_CausticsTex("Cautics Tex",2D)="white"{}
+    	[NoScaleOffset][Foldout(_CAUSTICS)]_CausticsTex("Cautics Tex",2D)="white"{}
     	[Foldout(_CAUSTICS)]_CausticsStrength("Caustics Strength",Range(0,1))=0.5
     }
     SubShader
@@ -71,16 +69,18 @@ Shader "Game/Lit/Transparency/Water"
             #pragma fragment frag
 
             #pragma shader_feature _WAVE
-            #pragma shader_feature _PROBEREFLECT
-            #pragma shader_feature _PLANARREFLECT
+            #pragma shader_feature _REFLECT
             #pragma shader_feature _FOAM
             #pragma shader_feature _CAUSTICS
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
-            #include "Assets/Shaders/Functions/ValueMapping.hlsl"
-            #include "Assets/Shaders/Functions/PBR_Func.hlsl"
-            #include "Assets/Shaders/Functions/DepthPreCompute.hlsl"
+            #include "Assets/Shaders/Includes/Instance.hlsl"
+            #include "Assets/Shaders/Includes/ValueMapping.hlsl"
+            #include "Assets/Shaders/Includes/PBR_Func.hlsl"
+            #include "Assets/Shaders/Includes/DepthPreCompute.hlsl"
+            #include "Assets/Shaders/Includes/DepthNormal.hlsl"
+            #include "Assets/Shaders/Includes/Reflection.hlsl"
 
             #define UNITY_PROJ_COORD(a) a.xyzw/a.w
             #define UNITY_SAMPLE_DEPTH(a) a.r
@@ -111,43 +111,38 @@ Shader "Game/Lit/Transparency/Water"
             TEXTURE2D(_NoiseTex);SAMPLER(sampler_NoiseTex);
             TEXTURE2D(_NormalTex);SAMPLER(sampler_NormalTex);
             TEXTURE2D(_DeriveHeightTex);SAMPLER(sampler_DeriveHeightTex);
-            TEXTURE2D(_MaskMap);SAMPLER(sampler_MaskMap);
             TEXTURE2D(_CameraOpaqueTexture);SAMPLER(sampler_CameraOpaqueTexture);
             TEXTURE2D(_CameraDepthTexture);SAMPLER(sampler_CameraDepthTexture);
-            TEXTURE2D(_ReflectTex);SAMPLER(sampler_ReflectTex);
             TEXTURE2D(_FoamTex);SAMPLER(sampler_FoamTex);
             TEXTURE2D(_CausticsTex);SAMPLER(sampler_CausticsTex);
-            TEXTURE2D(_SSRTexture);SAMPLER(sampler_SSRTexture);
-            float4 _CameraDepthTexture_TexelSize;
-            float4 _ReflectTex_TexelSize;
-            float4 _Color;
-            float4 _MainTex_ST;
-            float4 _NormalTex_ST;
-            float4 _FlowTex_ST;
-            float4 _DeriveHeightTex_ST;
-            float _UJump;
-            float _VJump;
-            float4 _SpecularColor;
-            float _Smoothness;
-            float _Metallic;
-            float _OcclusionAmount;
-            float _Tilling;
-            float _Speed;
-            float _FlowStrength;
-            float _FlowOffset;
-            float _HeightScale;
-            float _HeightScaleModulated;
-            float4 _WaveA;
-            float4 _WaveB;
-            float4 _WaveC;
-            float _WaveSpeed;
-            float4 _WaterFogColor;
-            float _WaterFogDensity;
-            float _RefractionStrength;
-            float _ReflectionStrength;
-            float _FoamPower;
+            INSTANCING_BUFFER_START
+                INSTANCING_PROP(float4,_Color)
+                INSTANCING_PROP(float4,_MainTex_ST)
+                INSTANCING_PROP(float,_UJump)
+                INSTANCING_PROP(float,_VJump)
+				INSTANCING_PROP(float,_Tilling)
+				INSTANCING_PROP(float,_Speed)
+				INSTANCING_PROP(float,_FlowStrength)
+				INSTANCING_PROP(float,_FlowOffset)
+				INSTANCING_PROP(float4,_SpecularColor)
+				INSTANCING_PROP(float,_Smoothness)
+				INSTANCING_PROP(float,_HeightScale)
+				INSTANCING_PROP(float,_HeightScaleModulated)
+				INSTANCING_PROP(float4,_WaveA)
+				INSTANCING_PROP(float4,_WaveB)
+				INSTANCING_PROP(float4,_WaveC)
+				INSTANCING_PROP(float,_WaveSpeed)
+				INSTANCING_PROP(float4,_CameraDepthTexture_TexelSize)
+				INSTANCING_PROP(float4,_WaterFogColor)
+				INSTANCING_PROP(float,_WaterFogDensity)
+				INSTANCING_PROP(float,_RefractionStrength)
+				INSTANCING_PROP(float,_ReflectionStrength)
+				INSTANCING_PROP(float,_FoamPower)
+				INSTANCING_PROP(float,_FoamTilling)
+				INSTANCING_PROP(int,_ReflectType)
+            INSTANCING_BUFFER_END
 
-            float3 flowUV(float2 uv,float2 jump,float flowOffset,float tiling ,float2 flowVec,float time,bool flowB)
+			float3 flowUV(float2 uv,float2 jump,float flowOffset,float tiling ,float2 flowVec,float time,bool flowB)
             {
                 	float phaseOffset = flowB ? 0.5 : 0;
 	                float progress = frac(time + phaseOffset);
@@ -198,24 +193,16 @@ Shader "Game/Lit/Transparency/Water"
             	return (floor(uv*_CameraDepthTexture_TexelSize.zw)+0.5)*abs(_CameraDepthTexture_TexelSize.xy);
             	
             }
-
-            float GetReflectionCoefficient(float3 viewDir,float3 normal,float fresnelPower){
-				float a = 1 - dot(viewDir,normal);
-				return pow(a,fresnelPower);
-			}
             
-
-            float3 GetFoamAtten(float3 poistionWS,float4 screenPos)
+            float3 GetFoamAtten(float3 poistionWS,float3 positionDWS)
             {
-            	float depth=SAMPLE_TEXTURE2D_X(_CameraDepthTexture,sampler_CameraDepthTexture,screenPos.xy).r;
-            	float3 bgPositionWS=ReconstructWorldPosition(screenPos.xy,depth);
-            	float dist=distance(poistionWS,bgPositionWS)+0.1;
+            	float dist=distance(poistionWS,positionDWS)+0.1;
             	return pow(max(0,1 - dist / lerp(0.1,1,_FoamPower)),3);
             }
 
             float3 GetCaustics(float3 depthPositionWS,float2 normal)
             {
-	            float2 uv=depthPositionWS.xz*float2(0.5,1)+normal*0.1;
+	            float2 uv=depthPositionWS.xz*float2(0.5,1)+normal*_ReflectionStrength;
             	return SAMPLE_TEXTURE2D(_CausticsTex,sampler_CausticsTex,uv).rgb;
             }
             
@@ -237,6 +224,7 @@ Shader "Game/Lit/Transparency/Water"
             	return lerp(_WaterFogColor,grab,fogFactor);
             }
             
+            
 			v2f vert (a2v v)
             {
                 v2f o;
@@ -254,26 +242,26 @@ Shader "Game/Lit/Transparency/Water"
             	positionWS=p;
             	normalWS= normalize(cross(biTangentWS, tangentWS));
             	#endif
-            	o.positionWS=positionWS;
-                o.positionCS = TransformWorldToHClip(positionWS);
+                o.positionWS=positionWS;
+            	o.positionCS = TransformWorldToHClip(positionWS);
             	o.positionHCS=o.positionCS;
                 o.normalWS=normalWS;
 				o.tangentWS=tangentWS;
 				o.biTangentWS=biTangentWS;
 				o.viewDirWS=normalize(_WorldSpaceCameraPos-positionWS);
-                o.uv = TRANSFORM_TEX(v.uv, _MainTex);
+                o.uv = TRANSFORM_TEX_INSTANCE(v.uv, _MainTex);
                 return o;
             }
             
             float4 frag (v2f i) : SV_Target
             {
 				UNITY_SETUP_INSTANCE_ID(i);
-                half3 normalWS=normalize(i.normalWS);
+				half3 normalWS=normalize(i.normalWS);
                 half3 tangentWS=normalize(i.tangentWS);
                 half3 biTangentWS=normalize(i.biTangentWS);
                 half3x3 tbn=half3x3(tangentWS,biTangentWS,normalWS);
                 half3 viewDirWS=normalize(i.viewDirWS);
-                float4 screenPos =TransformClipToScreen(i.positionCS);
+            	float4 screenPos =TransformClipToScreen(i.positionCS);
 
             	//depth
             	real rawDepth=SAMPLE_TEXTURE2D_X(_CameraDepthTexture,sampler_CameraDepthTexture,screenPos.xy).r;
@@ -281,10 +269,11 @@ Shader "Game/Lit/Transparency/Water"
 				// Adjust z to match NDC for OpenGL
                 rawDepth = lerp(UNITY_NEAR_CLIP_VALUE, 1, rawDepth);
 				#endif
+            	float3 positionDWS=TransformNDCToWorld(screenPos.xy,rawDepth);
             	
 
             	//Flow
-            	float3 flow=SAMPLE_TEXTURE2D(_FlowTex,sampler_FlowTex,i.uv).rgb;
+                float3 flow=SAMPLE_TEXTURE2D(_FlowTex,sampler_FlowTex,i.uv).rgb;
                 flow.xy=flow.xy*2-1;
                 flow*=_FlowStrength;
                 //flowVec=float2(0,0);
@@ -297,52 +286,39 @@ Shader "Game/Lit/Transparency/Water"
                 float3 uvwB=flowUV(i.uv,jump,_FlowOffset,_Tilling,flow.xy,time,true);
 
                 //Normal
-             //    float3 normalA=UnpackNormal(SAMPLE_TEXTURE2D(_NormalTex,sampler_NormalTex,uvwA.xy))*uvwA.z;
-             //    float3 normalB=UnpackNormal(SAMPLE_TEXTURE2D(_NormalTex,sampler_NormalTex,uvwB.xy))*uvwB.z;
-             //    normalA=mul(transpose(tbn),normalA);
-             //    normalB=mul(transpose(tbn),normalB);
-             //    normalA.z=pow(saturate(1-pow(normalA.x,2)-pow(normalA.y,2)),0.5);
-             //    normalB.z=pow(saturate(1-pow(normalB.x,2)-pow(normalB.y,2)),0.5);
-             //    //float3 normal=normalize(normalA+normalB);
+            	// float3 normalA=UnpackNormal(SAMPLE_TEXTURE2D(_NormalTex,sampler_NormalTex,uvwA.xy))*uvwA.z;
+            	// float3 normalB=UnpackNormal(SAMPLE_TEXTURE2D(_NormalTex,sampler_NormalTex,uvwB.xy))*uvwB.z;
+            	// normalA.z=pow(saturate(1-pow(normalA.x,2)-pow(normalA.y,2)),0.5);
+            	// normalB.z=pow(saturate(1-pow(normalB.x,2)-pow(normalB.y,2)),0.5);
+            	// float3 normal=normalize(normalA+normalB);
+            	 // float3 normal=UnpackNormal(SAMPLE_TEXTURE2D(_NormalTex,sampler_NormalTex,i.uv.xy));
+              //    normal=mul(transpose(tbn),normal);
+              //    normal.z=pow(saturate(1-pow(normal.x,2)-pow(normal.y,2)),0.5);
+              //     normal=normalize(normal);
 
                 //DerivativeHeight
-                float heightScale=flow.z * _HeightScaleModulated + _HeightScale;
+                                float heightScale=flow.z * _HeightScaleModulated + _HeightScale;
                 float3 dhA=UnpackDerivativeHeight(SAMPLE_TEXTURE2D(_DeriveHeightTex,sampler_DeriveHeightTex,uvwA.xy))*uvwA.z*heightScale;
                 float3 dhB=UnpackDerivativeHeight(SAMPLE_TEXTURE2D(_DeriveHeightTex,sampler_DeriveHeightTex,uvwB.xy))*uvwB.z*heightScale;
-                float3 normal= normalize(float3((dhA.xy + dhB.xy), 1));
+                float3 normal= normalize(float3(-(dhA.xy + dhB.xy), 1));
             	normal = normalize(normalWS +float3(normal.x,0,normal.y));
-                float3 texA=SAMPLE_TEXTURE2D(_MainTex,sampler_MainTex,uvwA.xy)*uvwA.z;
-                float3 texB=SAMPLE_TEXTURE2D(_MainTex,sampler_MainTex,uvwB.xy)*uvwB.z;
-
-                //Light
-                Light light=GetMainLight();
-                half3 lightDir=normalize(light.direction);
-
+            	
             	//refract
-            	//float3 albedo= (texA+texB)* _Color;
             	float3 albedo=ColorBelowWater(screenPos,normal);
 
             	//reflect
-            	float3 reflectDir=reflect(-viewDirWS,normalWS);
-            	half3 envHdrCol=albedo;
-            	#if _PROBEREFLECT
-            	reflectDir=BoxProjectedCubemapDirection(reflectDir,i.positionWS,unity_SpecCube0_ProbePosition,unity_SpecCube0_BoxMin,unity_SpecCube0_BoxMax);
-            	half4 envCol=SAMPLE_TEXTURECUBE(unity_SpecCube0,samplerunity_SpecCube0,reflectDir);
-            	envHdrCol=DecodeHDREnvironment(envCol,unity_SpecCube0_HDR);
+            	#if _REFLECT
+            	float reflFersnel = GetReflectionFresnel(viewDirWS,normal,1);
+            	float2 uvOffset=normal.xz*_ReflectionStrength;
+            	float2 reflectUV=AlignWithGrabTexel(screenPos.xy+uvOffset/screenPos.w);
+            	albedo=GetReflectionColor(reflectUV,albedo,reflFersnel,_ReflectType);
             	#endif
+
+            	//Light
+                Light light=GetMainLight();
+                half3 lightDir=normalize(light.direction);
             	
-            	#if _PLANARREFLECT
-            	// float2 uvOffset=normal.xz*_ReflectionStrength;
-            	// uvOffset.y *=_ReflectTex_TexelSize.z * abs(_ReflectTex_TexelSize.y);
-            	// float2 uv=AlignWithGrabTexel(screenPos.xy+uvOffset/screenPos.w);
-            	// envHdrCol=SAMPLE_TEXTURE2D(_ReflectTex,sampler_ReflectTex,uv).rgb;
-            	envHdrCol=SAMPLE_TEXTURE2D(_SSRTexture,sampler_SSRTexture,screenPos.xy).rgb;
-            	#endif
-
-            	float reflCoeff = GetReflectionCoefficient(viewDirWS,normal,1);
-            	albedo+= lerp(0,envHdrCol,reflCoeff);
-
-                //halflanbert
+                //half lambert
                 // float3 diffuse=(dot(lightDir,normal)*0.5+0.5)*real4(light.color,1)*albedo;
                 // //float3 diffuse=LightingLambert(light.color,lightDir,normal);
                 // float3 specular=pow(max(0,dot(normalize(viewDirWS+lightDir),normal)),25)*light.color.rgb;
@@ -350,12 +326,11 @@ Shader "Game/Lit/Transparency/Water"
                 // float3 finalCol=diffuse+specular;
 
                 //pbr
-                float4 mask=SAMPLE_TEXTURE2D(_MaskMap,sampler_MaskMap,i.uv);
-                float metallic=mask.r*_Metallic;
-                float ao=mask.g*_OcclusionAmount;
-                float smoothness=mask.a*_Smoothness;
+                float metallic=0;
+                float ao=0;
+                float smoothness=_Smoothness;
                 
-                half3 halfDirWS=normalize(lightDir+viewDirWS);
+				half3 halfDirWS=normalize(lightDir+viewDirWS);
                 float roughness=pow(1-smoothness,2);
                 float3 f0=lerp(0.04,albedo,metallic);
                 float NdotV=max(saturate(dot(normal,viewDirWS)),0.0000001);
@@ -372,25 +347,22 @@ Shader "Game/Lit/Transparency/Water"
                 float3 inDirSpec=IndirectionSpec(NdotH,NdotL,LdotH,NdotV,normal,viewDirWS,roughness,smoothness,f0,ao);
                 float3 inDirCol=inDirDiff+inDirSpec;
 
-                float3 finalCol=directCol;
+                float3 finalCol=directCol+inDirCol;
 
             	#if _FOAM
-            	float3 foamAtten=GetFoamAtten(i.positionWS,screenPos);
-            	float2 foamUV=(uvwA+time*0.01+normal.xz*0.005)*30;
+            	float3 foamAtten=GetFoamAtten(i.positionWS,positionDWS);
+            	float2 foamUV=(i.positionWS.xz+time*0.1+normal.xz*0.1)*_FoamTilling;
             	float foamalDiff=SAMPLE_TEXTURE2D(_FoamTex,sampler_FoamTex,foamUV).g;
             	half3 foamTerm=(light.color+diffcol)*foamalDiff;
-            	finalCol=lerp(finalCol,foamTerm,foamAtten*foamalDiff);
+            	finalCol=lerp(finalCol,finalCol+foamTerm,foamAtten*foamalDiff);
             	#endif
 
             	#if _CAUSTICS
-            	float3 worldPos=TransformNDCToWorld(screenPos.xy,rawDepth);
-            	float3 castics=GetCaustics(worldPos,normal.xz);
-            	float ydiff=i.positionWS.y-worldPos.y;
+            	float3 castics=GetCaustics(positionDWS,normal.xz);
+            	float ydiff=i.positionWS.y-positionDWS.y;
             	finalCol+=castics*saturate(1-ydiff);
             	#endif
-
-            	//float depth1=SAMPLE_TEXTURE2D_X(_CameraDepthTexture,sampler_CameraDepthTexture,screenPos.xy).r;
-            	//float3 worldPos1=ReconstructWorldPosition(depth1,screenPos);
+            	
             	return float4(finalCol,1);
             }
             ENDHLSL

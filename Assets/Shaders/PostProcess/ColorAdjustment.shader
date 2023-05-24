@@ -17,7 +17,7 @@ Shader "Game/PostProcess/ColorAdjustment"
             #pragma fragment frag
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-            #include "Assets/Shaders/Functions/Instance.hlsl"
+            #include "Assets/Shaders/Includes/Instance.hlsl"
 
             struct a2v
             {
