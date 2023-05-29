@@ -96,13 +96,13 @@ MonoBehaviour:
     m_Value: 0.01
   m_FadeOutVertical:
     m_OverrideState: 1
-    m_Value: 0.521
+    m_Value: 0.455
   m_FadeOutHorizontal:
     m_OverrideState: 1
-    m_Value: 0.312
+    m_Value: 0.272
   m_ScreenLRStretchIntensity:
     m_OverrideState: 1
-    m_Value: 0.83
+    m_Value: 0
   m_ScreenLRStretchThreshold:
     m_OverrideState: 1
     m_Value: 0.7
@@ -187,7 +187,7 @@ MonoBehaviour:
     m_Value: 500
   m_MaxRayMarchingStep:
     m_OverrideState: 1
-    m_Value: 48
+    m_Value: 64
   m_RayMarchingStepSize:
     m_OverrideState: 1
     m_Value: 1

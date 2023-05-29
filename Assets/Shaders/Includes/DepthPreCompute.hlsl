@@ -62,10 +62,10 @@ float3 TransformNDCToWorld(float2 uv,float rawDepth)
         return TransformNDCToWorld_Perspective(uv,rawDepth);
 }
 
-float GetDepthDiffVS(float bgDepth,float surfaceDepth)
+float GetDepthDiffVS(float rawDepth,float surfaceDepth)
 {
-    float depthVale=LinearEyeDepth(bgDepth, _ZBufferParams);
-    float depthDiff=(depthVale-surfaceDepth)*0.05;
+    float depth=RawToEyeDepth(rawDepth);
+    float depthDiff=depth-surfaceDepth+0.001;
     return  depthDiff;
 }
 

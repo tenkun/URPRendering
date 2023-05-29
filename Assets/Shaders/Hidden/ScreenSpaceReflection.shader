@@ -86,7 +86,7 @@ Shader "Hidden/SSR"
             {
                 float3 curPos=orgin;
                 float depthDistant=0;
-                [unroll(256)]
+                [unroll(128)]
                 for(int i=0;i<_MaxStep;i++)
                 {
                     curPos+=marchDir*curStep+marchDir*dither;

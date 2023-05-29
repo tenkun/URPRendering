@@ -60,7 +60,7 @@ real3 IndirFresnel_Term(float HdotV,float3 f0,float roughness)
     return f0+f*saturate(1-roughness-f0);
 }
 
-real3 SH_IndirectionDiff(float normalWS)
+real3 SH_IndirectionDiff(float3 normalWS)
 {
     real4 SHCoefficients[7];
     SHCoefficients[0]=unity_SHAr;
@@ -74,9 +74,9 @@ real3 SH_IndirectionDiff(float normalWS)
     return  max(0,col);
 }
 
-float3 IndirectionDiffuse(float HdotV,float3 f0,float roughness,float metallic,float3 albedo,float normalWS,float ao)
+float3 IndirectionDiffuse(float HdotV,float3 f0,float roughness,float metallic,float3 albedo,float3 normalWS,float ao)
 {
-    float shCol=SH_IndirectionDiff(normalWS)*ao;
+    float3 shCol=SH_IndirectionDiff(normalWS)*ao;
     float3 ks=IndirFresnel_Term(HdotV,f0,roughness);
     float3 kd=(1-ks)*(1-metallic);
     float3 diffCol=shCol*albedo*kd;
