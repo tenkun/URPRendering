@@ -32,6 +32,13 @@ namespace Rendering.Pipline
         
         public override PostProcessInjectionPoint InjectionPoint => PostProcessInjectionPoint.AfterOpaqueAndSky;
 
+        private void Awake()
+        {
+            ssrMat = CoreUtils.CreateEngineMaterial(RenderResources.FindInclude("Hidden/SSR"));
+            if (ssrMat == null)
+                throw new NullReferenceException("Invalid ImageEffect Shader Found:" + name);
+        }
+
         public override bool IsActive()
         {
             if (ssrMat == null)
@@ -44,7 +51,6 @@ namespace Rendering.Pipline
             var layer = renderingData.cameraData.volumeLayerMask;
             if (!VolumeManager.instance.IsComponentActiveInMask<ScreenSpaceReflectionVolume>(layer))
                 return false;
-            ssrMat = CoreUtils.CreateEngineMaterial(RenderResources.FindInclude("Hidden/SSR"));
             ssr_handle = Shader.PropertyToID("_SSRTex");
             return true;
         }
@@ -105,6 +111,12 @@ namespace Rendering.Pipline
             #endregion
             
             return false;
+        }
+
+        public override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            CoreUtils.Destroy(ssrMat);
         }
     }  
 }

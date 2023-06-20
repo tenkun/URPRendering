@@ -73,13 +73,13 @@ namespace Rendering.Pipline
             if (!m_Resources)
                 return;
             
-            if(afterOpaqueAndSky.SetupVolume(renderingData))
+            if(afterOpaqueAndSky.SetupVolume())
                 renderer.EnqueuePass(afterOpaqueAndSky);
             
-            if(beforePostProcess.SetupVolume(renderingData))
+            if(beforePostProcess.SetupVolume())
                 renderer.EnqueuePass(beforePostProcess);
             
-            if(afterPostProcess.SetupVolume(renderingData))
+            if(afterPostProcess.SetupVolume())
                 renderer.EnqueuePass(afterPostProcess);
             
         }

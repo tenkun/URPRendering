@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -34,6 +35,11 @@ namespace Rendering.Pipline
         const int SHADER_NUMTHREAD_X = 8; //must match compute shader's [numthread(x)]
         const int SHADER_NUMTHREAD_Y = 8; //must match compute shader's [numthread(y)]
 
+        private void Awake()
+        {
+            ssprCS = RenderResources.FindComputeShader("ScreenSpacePlanarReflect");
+        }
+
         public override bool IsActive()
         {
             if (ssprCS == null)
@@ -46,7 +52,6 @@ namespace Rendering.Pipline
             var layerMask = renderingData.cameraData.volumeLayerMask;
             if (!VolumeManager.instance.IsComponentActiveInMask<ScreenSpacePlanarReflectionVolume>(layerMask))
                 return false;
-            ssprCS = RenderResources.FindComputeShader("ScreenSpacePlanarReflect");
             return IsActive();
         }
 

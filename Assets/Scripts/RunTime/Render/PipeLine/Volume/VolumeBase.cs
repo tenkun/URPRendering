@@ -40,6 +40,12 @@ namespace Rendering.Pipline
 
         #region  IDisposable
 
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            Dispose();
+        }
+
         ~VolumeBase()
         {
             Dispose(false);

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -24,6 +25,11 @@ namespace Rendering.Pipline
 
         private Material fogMat;
 
+        private void Awake()
+        {
+            fogMat=CoreUtils.CreateEngineMaterial(RenderResources.FindPostProcess("Hidden/PostPress/Fog"));
+        }
+
         public override bool IsActive()
         {
             if (fogMat == null)
@@ -36,7 +42,6 @@ namespace Rendering.Pipline
             var layer = renderingData.cameraData.volumeLayerMask;
             if (!VolumeManager.instance.IsComponentActiveInMask<FogVolume>(layer))
                 return false;
-            fogMat=CoreUtils.CreateEngineMaterial(RenderResources.FindPostProcess("Hidden/PostPress/Fog"));
             return IsActive();
         }
 
@@ -53,7 +58,7 @@ namespace Rendering.Pipline
             fogMat.SetFloat("_FogHeightRangeEnd",m_FogHeightRange.value.y);
             fogMat.SetFloat("_FogDepthRange",m_FogDepthRange.value.x);
             fogMat.SetFloat("_FogDepthRangeEnd",m_FogDepthRange.value.y);
-            cmd.Blit(source, destination, fogMat,-1);
+            cmd.Blit(source, destination, fogMat,0);
             return true;
         }
 

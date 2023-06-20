@@ -24,6 +24,11 @@ namespace Rendering.Pipline
 
         private Material colorAdjustmentMat;
 
+        private void Awake()
+        {
+            colorAdjustmentMat=CoreUtils.CreateEngineMaterial(RenderResources.FindPostProcess("Game/PostProcess/ColorAdjustment"));
+        }
+
         public override bool IsActive()
         {
             if (colorAdjustmentMat == null)
@@ -36,8 +41,6 @@ namespace Rendering.Pipline
             var layer = renderingData.cameraData.volumeLayerMask;
             if (!VolumeManager.instance.IsComponentActiveInMask<ColorAdjustmentVolume>(layer))
                 return false;
-            //colorAdjustmentCS= RenderResources.FindComputeShader("ColorAdjustment"); 
-            colorAdjustmentMat=CoreUtils.CreateEngineMaterial(RenderResources.FindPostProcess("Game/PostProcess/ColorAdjustment"));
             return IsActive();
         }
 

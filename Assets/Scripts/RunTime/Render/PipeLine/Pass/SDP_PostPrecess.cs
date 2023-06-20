@@ -32,11 +32,11 @@ namespace Rendering.Pipline
             m_Volumes = volumes;
         }
 
-        public bool SetupVolume(RenderingData renderingData)
+        public bool SetupVolume()
         {
             for (int i = m_Volumes.Count - 1; i >= 0; --i)
             {
-                if (!m_Volumes[i].CheckValid(renderingData))
+                if (!m_Volumes[i].IsActive())
                 {
                     m_Volumes.RemoveAt(i);
                 }
@@ -79,7 +79,7 @@ namespace Rendering.Pipline
 
             if (m_Volumes.Count <= 1)
             {
-                if (!m_Volumes[0].IsActive())
+                if (!m_Volumes[0].CheckValid(renderingData))
                 {
                     CommandBufferPool.Release(cmd);
                     return;
@@ -88,7 +88,7 @@ namespace Rendering.Pipline
             cmd.Blit(source,temp1);
             foreach (var volume in m_Volumes)
             {
-                if(!volume.IsActive())
+                if(!volume.CheckValid(renderingData))
                     continue;
 
                 bool success = false;

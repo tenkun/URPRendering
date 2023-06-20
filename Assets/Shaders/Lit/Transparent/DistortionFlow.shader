@@ -40,7 +40,7 @@ Shader "Game/Lit/Transparency/Water"
     	_RefractionStrength("Refract Strength",Range(0,1))=0.25
     	
     	[Header(Reflection)]
-    	[Toggle(_REFLECT)]_ProbeReflect("Enable",int)=0
+    	[Toggle(_REFLECT)]_Reflect("Enable",int)=0
     	[Foldout(_REFLECT)][Enum(Planar,0,SSR,1,SSPR,2)]_ReflectType("Reflect Type",int)=2
     	[Foldout(_REFLECT)]_FresnelPower("Fresnel",Range(0,5))=1
 	    [Foldout(_REFLECT)]_ReflectionStrength("Reflect Strength",Range(0,1))=0.25
